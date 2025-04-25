@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import '../app/routes/app_routes.dart';
 
 class CustomNavBar extends StatelessWidget {
   final int currentIndex;

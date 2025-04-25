@@ -59,7 +59,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   ),
                   CircleAvatar(
                     backgroundImage: const AssetImage(
-                      'assets/images/profile.png',
+                      'assets/images/default_pic.png',
                     ),
                     radius: 20,
                   ),

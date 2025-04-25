@@ -23,74 +23,11 @@ class _RendezVousCalendarViewState extends State<RendezVousCalendarView> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset('assets/images/dark_logo.png', height: 40),
-                  const CircleAvatar(
-                    backgroundImage: AssetImage('assets/images/profile.png'),
-                    radius: 20,
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => setState(() => _showAppointments = true),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            _showAppointments
-                                ? const Color.fromRGBO(103, 146, 148, 1)
-                                : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Mes Rendez-vous',
-                        style: TextStyle(
-                          color:
-                              _showAppointments
-                                  ? Colors.white
-                                  : const Color.fromRGBO(103, 146, 148, 1),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed:
-                          () => setState(() => _showAppointments = false),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            !_showAppointments
-                                ? const Color.fromRGBO(103, 146, 148, 1)
-                                : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Mes Demandes',
-                        style: TextStyle(
-                          color:
-                              !_showAppointments
-                                  ? Colors.white
-                                  : const Color.fromRGBO(103, 146, 148, 1),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Header with logo and profile - Keep only this one
+
+            // Tabs - Keep only this one
+
+            // Calendar
             TableCalendar(
               firstDay: DateTime.utc(2024, 1, 1),
               lastDay: DateTime.utc(2025, 12, 31),
@@ -109,20 +46,19 @@ class _RendezVousCalendarViewState extends State<RendezVousCalendarView> {
                 });
               },
             ),
-            if (_selectedDay != null)
-              Expanded(
-                child:
-                    _showAppointments
-                        ? const AppointmentList()
-                        : const RequestsList(),
-              ),
+            // Content based on selected tab
+            Expanded(
+              child:
+                  _showAppointments
+                      ? const AppointmentList()
+                      : const RequestsList(),
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAppointmentRequestDialog(),
-        backgroundColor: const Color.fromRGBO(103, 146, 148, 1),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -130,6 +66,7 @@ class _RendezVousCalendarViewState extends State<RendezVousCalendarView> {
   void _showAppointmentRequestDialog() {
     Get.dialog(
       Dialog(
+        surfaceTintColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(20),

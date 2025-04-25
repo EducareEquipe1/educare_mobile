@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../app/routes/app_routes.dart';
+import '../home/home_page.dart';
+import '../rendezvous/appointments_page.dart';
+import '../documents/documents_page.dart';
+import '../notifications/notifications_page.dart';
+import '../settings/settings_page.dart';
 import '../../widgets/custom_nav_bar.dart';
 
 class BottomNav extends StatefulWidget {
@@ -13,35 +17,25 @@ class BottomNav extends StatefulWidget {
 class _BottomNavState extends State<BottomNav> {
   int _currentIndex = 0;
 
-  void _onTabTapped(int index) {
-    setState(() => _currentIndex = index);
-
-    switch (index) {
-      case 0:
-        Get.toNamed(AppRoutes.home);
-        break;
-      case 1:
-        Get.toNamed(AppRoutes.calendar);
-        break;
-      case 2:
-        Get.toNamed(AppRoutes.folder);
-        break;
-      case 3:
-        Get.toNamed(AppRoutes.notifications);
-        break;
-      case 4:
-        Get.toNamed(AppRoutes.settings);
-        break;
-    }
-  }
+  final List<Widget> _pages = [
+    const HomePage(),
+    const AppointmentsPage(),
+    const DocumentsPage(), // Changed from DossierPage to DocumentsPage
+    const NotificationsPage(),
+    const SettingsPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const SafeArea(child: SizedBox()),
+      body: _pages[_currentIndex],
       bottomNavigationBar: CustomNavBar(
         currentIndex: _currentIndex,
-        onTap: _onTabTapped,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }

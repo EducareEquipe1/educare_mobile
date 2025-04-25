@@ -1,13 +1,15 @@
+import 'package:educare/screens/documents/documents_page.dart';
 import 'package:get/get.dart';
 import '../../screens/splash/splash_screen.dart';
 import '../../screens/home/bottom_nav.dart';
 import '../../screens/greeting/greeting_page.dart';
 import '../../screens/auth/login_page.dart';
 import '../../screens/rendezvous/calendar_view.dart';
-import '../../screens/dossier_medical/dossier_page.dart';
 import '../../screens/notifications/notifications_page.dart';
 import '../../screens/settings/settings_page.dart';
 import 'app_routes.dart';
+import '../../bindings/consultation_binding.dart';
+import '../../screens/documents/consultations/consultation_view.dart';
 
 class AppPages {
   static final routes = [
@@ -19,7 +21,7 @@ class AppPages {
       name: AppRoutes.calendar,
       page: () => const RendezVousCalendarView(),
     ),
-    GetPage(name: AppRoutes.folder, page: () => const DossierPage()),
+    GetPage(name: AppRoutes.folder, page: () => const DocumentsPage()),
     GetPage(
       name: AppRoutes.notifications,
       page: () => const NotificationsPage(),
