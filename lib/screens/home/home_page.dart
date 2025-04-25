@@ -1,0 +1,215 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'health_tips.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image.asset(
+                    'assets/images/dark_logo.png', // Update with correct logo path
+                    height: 40,
+                  ),
+                  CircleAvatar(
+                    backgroundImage: AssetImage(
+                      'assets/images/profile.png',
+                    ), // Update with correct profile image path
+                    radius: 20,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Bonjour, Sarah!',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromRGBO(45, 55, 72, 1),
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildCard('Conseil santé du jour', HealthTips.getRandomTip()),
+              const SizedBox(height: 16),
+              _buildAppointmentCard(),
+              const SizedBox(height: 16),
+              _buildQuickActionsCard(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard(String title, String content) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(241, 245, 249, 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(45, 55, 72, 1),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            content,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color.fromRGBO(113, 128, 150, 1),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppointmentCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(241, 245, 249, 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Prochain rendez-vous',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(45, 55, 72, 1),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '17 avril 2025 à 14:30',
+            style: const TextStyle(
+              fontSize: 14,
+              color: Color.fromRGBO(113, 128, 150, 1),
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Compte à rebours',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(45, 55, 72, 1),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildCountdownItem('7', 'Jours'),
+              _buildCountdownItem('19', 'Heures'),
+              _buildCountdownItem('45', 'Minutes'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCountdownItem(String value, String label) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(45, 55, 72, 1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            value,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            color: Color.fromRGBO(113, 128, 150, 1),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuickActionsCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color.fromRGBO(241, 245, 249, 1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Actions rapides',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(45, 55, 72, 1),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildActionButton('Demandez un\nRendez-vous', () {}),
+              _buildActionButton('Voir mes\nrendez-vous', () {}),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton(String text, VoidCallback onPressed) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromRGBO(225, 240, 240, 1),
+        foregroundColor: const Color.fromRGBO(45, 55, 72, 1),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 14),
+      ),
+    );
+  }
+}
