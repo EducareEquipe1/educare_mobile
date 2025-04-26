@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../app/routes/app_routes.dart';
 
+const mainGreen = Color.fromRGBO(45, 55, 72, 1);
+
 class GreetingPage extends StatelessWidget {
   const GreetingPage({Key? key}) : super(key: key);
 
@@ -11,10 +13,25 @@ class GreetingPage extends StatelessWidget {
     final imageHeight = size.height * 0.3;
 
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(size.width * 0.06),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromRGBO(103, 146, 148, 1), // Lighter shade at the bottom
+              Colors.white, // White at the top
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: size.width * 0.08,
+              vertical: size.height * 0.04,
+            ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -31,12 +48,7 @@ class GreetingPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: size.width * 0.06,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromRGBO(
-                      103,
-                      146,
-                      148,
-                      1,
-                    ), // Changed from hex
+                    color: const Color.fromRGBO(103, 146, 148, 1), // #679294
                   ),
                 ),
                 SizedBox(height: size.height * 0.02),
@@ -46,11 +58,11 @@ class GreetingPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: size.width * 0.04,
                     color: const Color.fromRGBO(
-                      113,
-                      128,
-                      150,
-                      1,
-                    ), // Changed from hex
+                      46,
+                      61,
+                      64,
+                      0.58,
+                    ), // #2E3D40 with 58% opacity
                   ),
                 ),
                 SizedBox(height: size.height * 0.05),
@@ -60,12 +72,7 @@ class GreetingPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => Get.toNamed(AppRoutes.login),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(
-                        45,
-                        55,
-                        72,
-                        1,
-                      ), // Changed from hex
+                      backgroundColor: mainGreen,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

@@ -1,3 +1,4 @@
+import 'package:educare/screens/auth/sign_up_page.dart';
 import 'package:educare/screens/documents/documents_page.dart';
 import 'package:get/get.dart';
 import '../../screens/splash/splash_screen.dart';
@@ -38,5 +39,7 @@ class AppPages {
     GetPage(name: AppRoutes.passwordChanged, page: () => PasswordChangedPage()),
     GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordPage()),
     GetPage(name: AppRoutes.emailSent, page: () => EmailSentPage()),
+        GetPage(name: AppRoutes.signUp, page: () => const SignUpPage()), // Add this
+
   ];
 }

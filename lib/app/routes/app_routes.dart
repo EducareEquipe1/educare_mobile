@@ -2,6 +2,8 @@ abstract class AppRoutes {
   static const splash = '/';
   static const greeting = '/greeting';
   static const login = '/login';
+  static const signUp = '/sign-up'; // Add this
+
   static const home = '/home';
   static const calendar = '/calendar';
   static const folder = '/folder';

@@ -208,11 +208,15 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Get.toNamed(
+                          AppRoutes.signUp,
+                        ); // Navigate to Sign-Up Page
+                      },
                       child: Text(
                         'Inscrivez-vous maintenant',
                         style: TextStyle(
-                          color: const Color.fromRGBO(45, 55, 72, 1),
+                          color: mainGreen,
                           fontWeight: FontWeight.w600,
                           fontSize: size.width * 0.035,
                         ),
