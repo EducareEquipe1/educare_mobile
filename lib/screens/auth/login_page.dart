@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../app/routes/app_routes.dart';
 
 const mainGreen = Color.fromRGBO(45, 55, 72, 1);
@@ -13,6 +15,47 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  String _message = '';
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      _isLoading = true;
+      _message = '';
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://educare-backend-l6ue.onrender.com/patients/login/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        // Navigate directly to the Home Page
+        Get.offAllNamed(AppRoutes.home);
+      } else {
+        setState(() {
+          _message = data['error'] ?? 'Invalid credentials. Try again.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _message = 'An error occurred. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +107,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 8),
                     TextFormField(
+                      controller: _emailController,
                       style: const TextStyle(color: mainGreen),
                       cursorColor: mainGreen,
                       decoration: InputDecoration(
@@ -107,6 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 8),
                     TextFormField(
+                      controller: _passwordController,
                       obscureText: !_isPasswordVisible,
                       style: const TextStyle(color: mainGreen),
                       cursorColor: mainGreen,
@@ -174,11 +219,20 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 SizedBox(height: size.height * 0.03),
+                if (_message.isNotEmpty)
+                  Text(
+                    _message,
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: size.width * 0.035,
+                    ),
+                  ),
+                SizedBox(height: size.height * 0.02),
                 SizedBox(
                   width: double.infinity,
                   height: size.height * 0.065,
                   child: ElevatedButton(
-                    onPressed: () => Get.offAllNamed(AppRoutes.home),
+                    onPressed: _isLoading ? null : _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -186,14 +240,21 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       elevation: 0,
                     ),
-                    child: Text(
-                      'Se connecter',
-                      style: TextStyle(
-                        fontSize: size.width * 0.045,
-                        color: const Color.fromRGBO(103, 146, 148, 1),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child:
+                        _isLoading
+                            ? CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                const Color.fromRGBO(103, 146, 148, 1),
+                              ),
+                            )
+                            : Text(
+                              'Se connecter',
+                              style: TextStyle(
+                                fontSize: size.width * 0.045,
+                                color: const Color.fromRGBO(103, 146, 148, 1),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                   ),
                 ),
                 SizedBox(height: size.height * 0.02),

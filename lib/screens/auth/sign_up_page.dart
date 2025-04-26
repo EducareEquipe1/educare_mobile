@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../app/routes/app_routes.dart';
 
 const mainGreen = Color.fromRGBO(45, 55, 72, 1);
@@ -12,8 +14,70 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  String? _selectedRole; // Variable to store the selected role
-  bool _isPasswordVisible = false; // Variable to toggle password visibility
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _birthDateController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _matriculeController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String? _selectedRole = 'Etudiant';
+  bool _isPasswordVisible = false;
+  bool _isLoading = false;
+  String _message = '';
+
+  Future<void> _handleSignUp() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+      _message = '';
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/register',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'first_name': _firstNameController.text,
+          'last_name': _lastNameController.text,
+          'birth_date': _birthDateController.text,
+          'phone': _phoneController.text,
+          'matricule': _matriculeController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text,
+          'categorie': _selectedRole,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 201) {
+        setState(() {
+          _message = 'Account created successfully!';
+        });
+        Get.toNamed(
+          AppRoutes.checkEmail,
+          arguments: {'email': _emailController.text},
+        );
+      } else {
+        setState(() {
+          _message = data['error'] ?? 'Error signing up. Try again.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _message = 'An error occurred. Please try again.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,131 +99,167 @@ class _SignUpPageState extends State<SignUpPage> {
               horizontal: size.width * 0.08,
               vertical: size.height * 0.04,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // EduCare Logo
-                Image.asset(
-                  'assets/images/white_logo.png',
-                  height: size.height * 0.08,
-                ),
-                SizedBox(height: size.height * 0.02),
-
-                // Title
-                Text(
-                  'Créer un compte!',
-                  style: TextStyle(
-                    fontSize: size.width * 0.055,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // EduCare Logo
+                  Image.asset(
+                    'assets/images/white_logo.png',
+                    height: size.height * 0.08,
                   ),
-                ),
-                SizedBox(height: size.height * 0.04),
+                  SizedBox(height: size.height * 0.02),
 
-                // Name and Surname
-                Row(
-                  children: [
-                    Expanded(child: _buildTextField('Nom', Icons.person, size)),
-                    SizedBox(width: size.width * 0.04),
-                    Expanded(
-                      child: _buildTextField(
-                        'Prénom',
-                        Icons.person_outline,
-                        size,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: size.height * 0.02),
-
-                // Date of Birth
-                _buildTextField(
-                  'Date de naissance',
-                  Icons.calendar_today,
-                  size,
-                ),
-                SizedBox(height: size.height * 0.02),
-
-                // Phone and Matricule
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTextField('Téléphone', Icons.phone, size),
-                    ),
-                    SizedBox(width: size.width * 0.04),
-                    Expanded(
-                      child: _buildTextField('Matricule', Icons.badge, size),
-                    ),
-                  ],
-                ),
-                SizedBox(height: size.height * 0.02),
-
-                // Email
-                _buildTextField('Email', Icons.email, size),
-                SizedBox(height: size.height * 0.02),
-
-                // Password with Eye Icon
-                _buildPasswordField(size),
-                SizedBox(height: size.height * 0.02),
-
-                // Role Dropdown
-                _buildRoleDropdown(size),
-                SizedBox(height: size.height * 0.04),
-
-                // Create Button
-                SizedBox(
-                  width: double.infinity,
-                  height: size.height * 0.065,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Handle sign-up logic
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Créer',
-                      style: TextStyle(
-                        fontSize: size.width * 0.045,
-                        color: const Color.fromRGBO(103, 146, 148, 1),
-                        fontWeight: FontWeight.w600,
-                      ),
+                  // Title
+                  Text(
+                    'Créer un compte!',
+                    style: TextStyle(
+                      fontSize: size.width * 0.055,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
                     ),
                   ),
-                ),
-                SizedBox(height: size.height * 0.02),
+                  SizedBox(height: size.height * 0.04),
 
-                // Navigate to Login
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Vous avez déjà un compte ? ',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: size.width * 0.035,
+                  // Name and Surname
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                          'Nom',
+                          Icons.person,
+                          _firstNameController,
+                          size,
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Get.toNamed(AppRoutes.login); // Navigate to Login Page
-                      },
+                      SizedBox(width: size.width * 0.04),
+                      Expanded(
+                        child: _buildTextField(
+                          'Prénom',
+                          Icons.person_outline,
+                          _lastNameController,
+                          size,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Date of Birth
+                  _buildTextField(
+                    'Date de naissance (YYYY-MM-DD)',
+                    Icons.calendar_today,
+                    _birthDateController,
+                    size,
+                  ),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Phone and Matricule
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildTextField(
+                          'Téléphone',
+                          Icons.phone,
+                          _phoneController,
+                          size,
+                        ),
+                      ),
+                      SizedBox(width: size.width * 0.04),
+                      Expanded(
+                        child: _buildTextField(
+                          'Matricule',
+                          Icons.badge,
+                          _matriculeController,
+                          size,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Email
+                  _buildTextField('Email', Icons.email, _emailController, size),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Password with Eye Icon
+                  _buildPasswordField(size),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Role Dropdown
+                  _buildRoleDropdown(size),
+                  SizedBox(height: size.height * 0.04),
+
+                  // Create Button
+                  SizedBox(
+                    width: double.infinity,
+                    height: size.height * 0.065,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _handleSignUp,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
                       child: Text(
-                        'Connectez-vous',
+                        _isLoading ? 'Création...' : 'Créer',
                         style: TextStyle(
-                          color: mainGreen,
+                          fontSize: size.width * 0.045,
+                          color: const Color.fromRGBO(103, 146, 148, 1),
                           fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Navigate to Login
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Vous avez déjà un compte ? ',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: size.width * 0.035,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Get.toNamed(AppRoutes.login);
+                        },
+                        child: Text(
+                          'Connectez-vous',
+                          style: TextStyle(
+                            color: mainGreen,
+                            fontWeight: FontWeight.w600,
+                            fontSize: size.width * 0.035,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Error or Success Message
+                  if (_message.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                        _message,
+                        style: TextStyle(
+                          color:
+                              _message.contains('successfully')
+                                  ? Colors.green
+                                  : Colors.red,
                           fontSize: size.width * 0.035,
                         ),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -170,10 +270,12 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _buildTextField(
     String hint,
     IconData icon,
+    TextEditingController controller,
     Size size, {
     bool obscureText = false,
   }) {
     return TextFormField(
+      controller: controller,
       obscureText: obscureText,
       style: const TextStyle(color: mainGreen),
       cursorColor: mainGreen,
@@ -203,6 +305,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Widget _buildPasswordField(Size size) {
     return TextFormField(
+      controller: _passwordController,
       obscureText: !_isPasswordVisible,
       style: const TextStyle(color: mainGreen),
       cursorColor: mainGreen,
@@ -246,9 +349,7 @@ class _SignUpPageState extends State<SignUpPage> {
       value: _selectedRole,
       decoration: InputDecoration(
         hintText: 'Role',
-        hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.7),
-        ), // Explicitly set hint text color to white
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
         prefixIcon: Icon(Icons.person_search),
         prefixIconColor: MaterialStateColor.resolveWith((states) {
           if (states.contains(MaterialState.focused)) {
@@ -274,12 +375,7 @@ class _SignUpPageState extends State<SignUpPage> {
               .map(
                 (role) => DropdownMenuItem<String>(
                   value: role,
-                  child: Text(
-                    role,
-                    style: const TextStyle(
-                      color: mainGreen,
-                    ), // Selected item color
-                  ),
+                  child: Text(role, style: const TextStyle(color: mainGreen)),
                 ),
               )
               .toList(),
@@ -288,7 +384,7 @@ class _SignUpPageState extends State<SignUpPage> {
           _selectedRole = value;
         });
       },
-      style: const TextStyle(color: mainGreen), // Selected item text color
+      style: const TextStyle(color: mainGreen),
     );
   }
 }
