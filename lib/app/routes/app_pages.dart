@@ -10,6 +10,10 @@ import '../../screens/settings/settings_page.dart';
 import 'app_routes.dart';
 import '../../bindings/consultation_binding.dart';
 import '../../screens/documents/consultations/consultation_view.dart';
+import 'package:educare/screens/auth/reset_password_page.dart';
+import 'package:educare/screens/auth/password_changed_page.dart';
+import 'package:educare/screens/auth/forgot_password_page.dart';
+import 'package:educare/screens/auth/email_sent_page.dart';
 
 class AppPages {
   static final routes = [
@@ -27,5 +31,12 @@ class AppPages {
       page: () => const NotificationsPage(),
     ),
     GetPage(name: AppRoutes.settings, page: () => const SettingsPage()),
+    GetPage(
+      name: AppRoutes.resetPassword,
+      page: () => ResetPasswordPage(), // Add token handling if required
+    ),
+    GetPage(name: AppRoutes.passwordChanged, page: () => PasswordChangedPage()),
+    GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordPage()),
+    GetPage(name: AppRoutes.emailSent, page: () => EmailSentPage()),
   ];
 }

@@ -7,4 +7,8 @@ abstract class AppRoutes {
   static const folder = '/folder';
   static const notifications = '/notifications';
   static const settings = '/settings';
+  static const resetPassword = '/reset-password';
+  static const passwordChanged = '/password-changed';
+  static const forgotPassword = '/forgot-password';
+  static const emailSent = '/email-sent';
 }

@@ -183,6 +183,7 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
               child:
                   _showAppointments
                       ? _selectedView == 'calendar'
+                      
                           ? const RendezVousCalendarView()
                           : const AppointmentList()
                       : const RequestsList(),
