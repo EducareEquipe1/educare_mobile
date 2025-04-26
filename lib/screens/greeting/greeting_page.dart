@@ -48,7 +48,7 @@ class GreetingPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: size.width * 0.06,
                     fontWeight: FontWeight.bold,
-                    color: const Color.fromRGBO(103, 146, 148, 1), // #679294
+                    color:  mainGreen // #679294
                   ),
                 ),
                 SizedBox(height: size.height * 0.02),

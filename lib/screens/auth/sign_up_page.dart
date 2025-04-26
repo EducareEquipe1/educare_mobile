@@ -246,7 +246,9 @@ class _SignUpPageState extends State<SignUpPage> {
       value: _selectedRole,
       decoration: InputDecoration(
         hintText: 'Role',
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+        hintStyle: TextStyle(
+          color: Colors.white.withOpacity(0.7),
+        ), // Explicitly set hint text color to white
         prefixIcon: Icon(Icons.person_search),
         prefixIconColor: MaterialStateColor.resolveWith((states) {
           if (states.contains(MaterialState.focused)) {
@@ -274,9 +276,9 @@ class _SignUpPageState extends State<SignUpPage> {
                   value: role,
                   child: Text(
                     role,
-                    style: TextStyle(
-                      color: mainGreen, // Always white for dropdown items
-                    ),
+                    style: const TextStyle(
+                      color: mainGreen,
+                    ), // Selected item color
                   ),
                 ),
               )
@@ -286,7 +288,7 @@ class _SignUpPageState extends State<SignUpPage> {
           _selectedRole = value;
         });
       },
-      style: const TextStyle(color: mainGreen), // Selected item turns mainGreen
+      style: const TextStyle(color: mainGreen), // Selected item text color
     );
   }
 }
