@@ -96,7 +96,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 ),
                 SizedBox(height: size.height * 0.02),
                 Text(
-                  'Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.',
+                  'Entrez votre adresse e-mail et nous vous enverrons\nun lien pour réinitialiser votre mot de passe.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: size.width * 0.04,
@@ -104,53 +104,27 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ),
                 SizedBox(height: size.height * 0.04),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Email',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: size.width * 0.04,
+                TextFormField(
+                  controller: _emailController,
+                  style: const TextStyle(color: mainGreen),
+                  decoration: InputDecoration(
+                    hintText: 'Email',
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    prefixIcon: Icon(Icons.email),
+                    prefixIconColor: Colors.white.withOpacity(0.7),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.white.withOpacity(0.3),
                       ),
                     ),
-                    SizedBox(height: 8),
-                    TextFormField(
-                      controller: _emailController,
-                      style: const TextStyle(color: mainGreen),
-                      cursorColor: mainGreen,
-                      decoration: InputDecoration(
-                        hintText: 'Saisissez votre Email',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withOpacity(0.7),
-                        ),
-                        prefixIcon: const Icon(Icons.email_outlined),
-                        prefixIconColor: MaterialStateColor.resolveWith((
-                          states,
-                        ) {
-                          if (states.contains(MaterialState.focused)) {
-                            return mainGreen;
-                          }
-                          return Colors.white.withOpacity(0.7);
-                        }),
-                        filled: true,
-                        fillColor: Colors.white.withOpacity(0.1),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.white.withOpacity(0.3),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: mainGreen,
-                            width: 2,
-                          ),
-                        ),
-                      ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: mainGreen, width: 2),
                     ),
-                  ],
+                  ),
                 ),
                 if (_message.isNotEmpty)
                   Padding(

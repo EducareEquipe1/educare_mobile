@@ -37,17 +37,19 @@ class _CheckEmailPageState extends State<CheckEmailPage> {
     try {
       final response = await http.get(
         Uri.parse(
-          'https://educare-backend-l6ue.onrender.com/patients/check-verification?email=$userEmail',
+          'https://educare-backend-l6ue.onrender.com/patients/verify-status/$userEmail',
         ),
       );
 
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['verified'] == true) {
-          // User is verified, navigate to home page
-          Get.offAllNamed(AppRoutes.home);
+        if (data['success'] && data['verified']) {
+          // User is verified, navigate to home
+          Get.offAllNamed(AppRoutes.home, arguments: data['userData']);
         } else {
-          // User is not verified, stay on verification page
           setState(() {
             _isVerified = false;
           });

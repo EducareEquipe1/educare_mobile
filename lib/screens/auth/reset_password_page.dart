@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../app/routes/app_routes.dart';
 
 const mainGreen = Color.fromRGBO(45, 55, 72, 1);
@@ -22,6 +22,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  String _message = '';
 
   @override
   void initState() {
@@ -32,20 +33,52 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
     }
   }
 
-  void _resetPassword() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _resetPassword() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_passwordController.text != _confirmPasswordController.text) {
       setState(() {
-        _isLoading = true;
+        _message = 'Les mots de passe ne correspondent pas';
       });
+      return;
+    }
 
-      // Simulate a network request
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _isLoading = false;
-        });
+    setState(() {
+      _isLoading = true;
+      _message = '';
+    });
 
-        // Navigate to the Password Changed page
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/set-new-password',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'token': widget.token,
+          'password': _passwordController.text,
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        // Password reset successful
         Get.offAllNamed(AppRoutes.passwordChanged);
+      } else {
+        setState(() {
+          _message =
+              data['error'] ??
+              'Erreur lors de la réinitialisation du mot de passe';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _message = 'Une erreur s\'est produite. Veuillez réessayer.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
       });
     }
   }
@@ -227,6 +260,17 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
                           return null;
                         },
                       ),
+                      if (_message.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: size.height * 0.02),
+                          child: Text(
+                            _message,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: size.width * 0.035,
+                            ),
+                          ),
+                        ),
                       SizedBox(height: size.height * 0.04),
                       _isLoading
                           ? const Center(child: CircularProgressIndicator())
