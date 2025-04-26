@@ -61,7 +61,9 @@ class _SignUpPageState extends State<SignUpPage> {
         });
         Get.toNamed(
           AppRoutes.checkEmail,
-          arguments: {'email': _emailController.text},
+          arguments: {
+            'email': _emailController.text,
+          }, // Pass email to CheckEmailPage
         );
       } else {
         setState(() {

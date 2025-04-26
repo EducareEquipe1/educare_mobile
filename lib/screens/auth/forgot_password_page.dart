@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../app/routes/app_routes.dart';
 
 const mainGreen = Color.fromRGBO(45, 55, 72, 1);
@@ -11,10 +13,48 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _emailController = TextEditingController();
+  bool _isLoading = false;
+  String _message = '';
 
-  void _sendResetLink() {
-    // Simulate sending a reset link
-    Get.toNamed(AppRoutes.emailSent); // Navigate to the Email Sent Page
+  Future<void> _sendResetLink() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _message = '';
+    });
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/forgot-password',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': _emailController.text}),
+      );
+
+      if (response.statusCode == 200) {
+        // Navigate to email sent page with email argument
+        Get.toNamed(
+          AppRoutes.emailSent,
+          arguments: {'email': _emailController.text},
+        );
+      } else {
+        final data = jsonDecode(response.body);
+        setState(() {
+          _message =
+              data['error'] ?? 'Error sending reset link. Please try again.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _message = 'Network error. Please try again later.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -112,12 +152,23 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ),
                   ],
                 ),
+                if (_message.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: size.height * 0.02),
+                    child: Text(
+                      _message,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: size.width * 0.035,
+                      ),
+                    ),
+                  ),
                 SizedBox(height: size.height * 0.04),
                 SizedBox(
                   width: double.infinity,
                   height: size.height * 0.065,
                   child: ElevatedButton(
-                    onPressed: _sendResetLink,
+                    onPressed: _isLoading ? null : _sendResetLink,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -125,14 +176,17 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       ),
                       elevation: 0,
                     ),
-                    child: Text(
-                      'Envoyer',
-                      style: TextStyle(
-                        fontSize: size.width * 0.045,
-                        color: const Color.fromRGBO(103, 146, 148, 1),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child:
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : Text(
+                              'Envoyer',
+                              style: TextStyle(
+                                fontSize: size.width * 0.045,
+                                color: const Color.fromRGBO(103, 146, 148, 1),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                   ),
                 ),
               ],

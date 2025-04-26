@@ -41,5 +41,7 @@ class AppPages {
     GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordPage()),
     GetPage(name: AppRoutes.emailSent, page: () => EmailSentPage()),
     GetPage(name: AppRoutes.signUp, page: () => const SignUpPage()), // Add this
+    GetPage(name: AppRoutes.checkEmail, page: () => CheckEmailPage()),
+    GetPage(name: AppRoutes.verifyEmail, page: () => CheckEmailPage()),
   ];
 }
