@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app/routes/app_pages.dart';
 import 'app/routes/app_routes.dart';
+import 'app/bindings/initial_binding.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,7 @@ class EduCareApp extends StatelessWidget {
           bodyMedium: TextStyle(fontSize: 14),
         ),
       ),
+      initialBinding: InitialBinding(),
       initialRoute: AppRoutes.splash,
       getPages: AppPages.routes,
     );

@@ -18,7 +18,7 @@ class _BottomNavState extends State<BottomNav> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    const HomePage(),
+     HomePage(),
     const AppointmentsPage(),
     const DocumentsPage(), // Changed from DossierPage to DocumentsPage
     const NotificationsPage(),

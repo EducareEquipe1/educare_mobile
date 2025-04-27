@@ -1,3 +1,5 @@
+import 'package:educare/controllers/user_controller.dart';
+import 'package:educare/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -39,8 +41,23 @@ class _LoginPageState extends State<LoginPage> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        // Navigate directly to the Home Page
-        Get.offAllNamed(AppRoutes.home);
+        // Get the UserController instance
+        final userController = Get.find<UserController>();
+
+        // Create a User instance from the response data
+        final user = User(
+          email: _emailController.text,
+          // Set other fields as needed
+        );
+
+        // Set the user in the controller
+        await userController.setUser(user);
+
+        // Fetch complete profile
+        await userController.fetchUserProfile(user.email!);
+
+        // Navigate to home and pass the email
+        Get.offAllNamed(AppRoutes.home, arguments: {'email': user.email});
       } else {
         setState(() {
           _message = data['error'] ?? 'Invalid credentials. Try again.';
@@ -53,6 +70,30 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       setState(() {
         _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _handleLoginSuccess(Map<String, dynamic> responseData) async {
+    try {
+      final userController = Get.find<UserController>();
+
+      // First set basic user data from login response
+      final user = User.fromJson(responseData);
+      await userController.setUser(user);
+
+      // Then fetch complete profile
+      await userController.fetchUserProfile(user.email!);
+
+      print(
+        'User data after login: ${userController.user?.toJson()}',
+      ); // Add this debug line
+
+      Get.offAllNamed(AppRoutes.home);
+    } catch (e) {
+      print('Error handling login success: $e');
+      setState(() {
+        _message = 'Error loading user data';
       });
     }
   }

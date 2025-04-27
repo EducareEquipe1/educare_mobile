@@ -30,11 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  get: ^4.6.6
+  get: ^4.6.1
   table_calendar: ^3.0.9
   intl: ^0.18.0
   image_picker: ^1.0.7
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.0.8
   http: ^1.1.0
 
 dev_dependencies:

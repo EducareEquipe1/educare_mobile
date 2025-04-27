@@ -1,10 +1,45 @@
+import 'package:educare/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'health_tips.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final UserController userController = Get.find<UserController>();
+  String? userEmail;
+  String greetingMessage = 'Bonjour';
+
+  @override
+  void initState() {
+    super.initState();
+    // Retrieve the email from arguments
+    userEmail = Get.arguments?['email'];
+    if (userEmail != null) {
+      _fetchUserData(userEmail!);
+    }
+  }
+
+  Future<void> _fetchUserData(String email) async {
+    try {
+      await userController.fetchUserProfile(email);
+      final user = userController.user;
+      if (user != null) {
+        setState(() {
+          greetingMessage =
+              'Bonjour ${user.firstName ?? ''} ${user.lastName ?? ''}';
+        });
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,22 +55,19 @@ class HomePage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image.asset(
-                    'assets/images/dark_logo.png', // Update with correct logo path
-                    height: 40,
-                  ),
+                  Image.asset('assets/images/dark_logo.png', height: 40),
                   CircleAvatar(
-                    backgroundImage: AssetImage(
-                      'assets/images/profile.png',
-                    ), // Update with correct profile image path
+                    backgroundImage: const AssetImage(
+                      'assets/images/default_pic.png',
+                    ),
                     radius: 20,
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              const Text(
-                'Bonjour, Sarah!',
-                style: TextStyle(
+              Text(
+                greetingMessage,
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color.fromRGBO(45, 55, 72, 1),
