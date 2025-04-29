@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,56 +44,75 @@ class UserController extends GetxController {
   Future<void> fetchUserProfile(String email) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/patients/profile/$email'),
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/profile/$email',
+        ),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'];
-
-        // Update the user data with the profile information
-        final updatedUser = User(
-          id: data['id'],
+        _user.value = User(
           email: data['email'],
           firstName: data['firstName'],
           lastName: data['lastName'],
           phone: data['phone'],
-          matricule: data['matricule'],
-          category: data['categorie'],
+          // Add other fields as needed
         );
-
-        await setUser(updatedUser);
-      } else {
-        print('Failed to fetch user profile: ${response.statusCode}');
+        update();
       }
     } catch (e) {
       print('Error fetching user profile: $e');
+      throw e;
     }
   }
 
   Future<bool> updateUserProfile({
-    required String nom,
-    required String prenom,
+    required String nom, // Changed from lastName
+    required String prenom, // Changed from firstName
     required String email,
-    required String newEmail,
-    required String numTel,
+    String? newEmail,
+    required String num_tel, // Changed from phone
   }) async {
     try {
-      final response = await http.patch(
-        Uri.parse('$baseUrl/patients/modify-profile/$email'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      print('Attempting to update profile for: $email');
+      print(
+        'Request payload: ${jsonEncode({
           'nom': nom,
           'prenom': prenom,
-          'new_email': newEmail,
-          'num_tel': numTel,
-        }),
+          'num_tel': num_tel,
+          if (newEmail != null && newEmail != email) 'new_email': newEmail, // Use new_email for email updates
+          'email': email, // Keep email for identifying the user
+        })}',
       );
 
+      final response = await http
+          .patch(
+            Uri.parse(
+              '$baseUrl/patients/modify-profile/${Uri.encodeComponent(email)}',
+            ),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'nom': nom,
+              'prenom': prenom,
+              'num_tel': num_tel,
+              if (newEmail != null && newEmail != email)
+                'new_email': newEmail, // Use new_email for email updates
+              'email': email, // Keep email for identifying the user
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
-        await fetchUserProfile(newEmail);
+        await fetchUserProfile(newEmail ?? email);
         return true;
       }
-      print('Failed to update profile: ${response.statusCode}');
+
+      throw Exception('Server returned status code: ${response.statusCode}');
+    } on TimeoutException {
+      print('Update request timed out');
       return false;
     } catch (e) {
       print('Error updating profile: $e');

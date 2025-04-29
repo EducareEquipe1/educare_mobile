@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'package:educare/widgets/profile_image.dart';
@@ -45,7 +46,7 @@ class _AccountPageState extends State<AccountPage> {
 
         final response = await http.get(
           Uri.parse(
-            'http://10.0.2.2:3000/patients/profile/${userController.user!.email}',
+            'https://educare-backend-l6ue.onrender.com/patients/profile/${userController.user!.email}',
           ),
         );
 
@@ -69,6 +70,68 @@ class _AccountPageState extends State<AccountPage> {
       }
     }
     _isLoading.value = false;
+  }
+
+  Future<void> _updateProfile() async {
+    try {
+      // Show loading indicator
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
+
+      // Example usage in account_page.dart
+      final result = await userController.updateUserProfile(
+        nom: _nomController.text,
+        prenom: _prenomController.text,
+        email: userController.user?.email ?? '',
+        num_tel: _telephoneController.text,
+        newEmail:
+            _emailController.text != userController.user!.email
+                ? _emailController.text
+                : null,
+      );
+
+      // Close loading dialog
+      Get.back();
+
+      if (result) {
+        Get.snackbar(
+          'Succès',
+          'Profil mis à jour avec succès',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          'Erreur',
+          'Échec de la mise à jour du profil',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      // Close loading dialog if still showing
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+
+      print('Error updating profile: $e');
+      Get.snackbar(
+        'Erreur',
+        'Une erreur s\'est produite lors de la mise à jour. Veuillez réessayer.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5),
+        mainButton: TextButton(
+          onPressed: _updateProfile,
+          child: const Text('Réessayer', style: TextStyle(color: Colors.white)),
+        ),
+      );
+    }
   }
 
   @override
@@ -193,9 +256,7 @@ class _AccountPageState extends State<AccountPage> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {
-          // Save changes logic
-        },
+        onPressed: _updateProfile,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF678E90),
           padding: const EdgeInsets.symmetric(vertical: 16),
