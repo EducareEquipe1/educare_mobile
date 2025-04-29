@@ -21,6 +21,7 @@ class UserController extends GetxController {
     _user.value = user;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_data', jsonEncode(user.toJson()));
+    update();
   }
 
   Future<void> loadUserFromStorage() async {
@@ -47,6 +48,7 @@ class UserController extends GetxController {
         Uri.parse(
           'https://educare-backend-l6ue.onrender.com/patients/profile/$email',
         ),
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -56,9 +58,11 @@ class UserController extends GetxController {
           firstName: data['firstName'],
           lastName: data['lastName'],
           phone: data['phone'],
-          // Add other fields as needed
+          profileImage: data['profileImage'],
         );
         update();
+      } else {
+        print('Failed to fetch user profile: ${response.body}');
       }
     } catch (e) {
       print('Error fetching user profile: $e');
@@ -106,6 +110,13 @@ class UserController extends GetxController {
       print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
+        _user.value = _user.value?.copyWith(
+          firstName: prenom,
+          lastName: nom,
+          email: newEmail ?? email,
+          phone: num_tel,
+        );
+        update();
         await fetchUserProfile(newEmail ?? email);
         return true;
       }

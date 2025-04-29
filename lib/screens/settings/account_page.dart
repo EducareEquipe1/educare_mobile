@@ -40,47 +40,78 @@ class _AccountPageState extends State<AccountPage> {
 
     if (userController.user?.email != null) {
       try {
-        print(
-          'Fetching profile for: ${userController.user!.email}',
-        ); // Debug log
+        print('Fetching profile for: ${userController.user!.email}');
 
-        final response = await http.get(
+        // Fetch user info
+        final profileResponse = await http.get(
           Uri.parse(
             'https://educare-backend-l6ue.onrender.com/patients/profile/${userController.user!.email}',
           ),
         );
 
-        print('Response status: ${response.statusCode}'); // Debug log
-        print('Response body: ${response.body}'); // Debug log
+        print('Profile response status: ${profileResponse.statusCode}');
+        print('Profile response body: ${profileResponse.body}');
 
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body)['data'];
+        if (profileResponse.statusCode == 200) {
+          final data = jsonDecode(profileResponse.body)['data'];
           setState(() {
             _nomController.text = data['lastName'] ?? '';
             _prenomController.text = data['firstName'] ?? '';
             _telephoneController.text = data['phone'] ?? '';
             _emailController.text = data['email'] ?? '';
+
+            // Set profile image or default image
+            userController.user?.profileImage =
+                data['profileImage']?.isNotEmpty == true
+                    ? data['profileImage']
+                    : 'assets/images/default_pic.png';
           });
         } else {
           _hasError.value = true;
         }
       } catch (e) {
-        print('Error loading user data: $e'); // Debug log
+        print('Error loading user data: $e');
         _hasError.value = true;
+      } finally {
+        _isLoading.value = false;
       }
+    } else {
+      _isLoading.value = false;
     }
-    _isLoading.value = false;
+  }
+
+  Future<void> _fetchProfileImage(String imageId) async {
+    try {
+      print('Fetching profile image with ID: $imageId');
+
+      final imageResponse = await http.get(
+        Uri.parse('http://localhost:3000/patients/upload-id-photo/$imageId'),
+      );
+
+      print('Image response status: ${imageResponse.statusCode}');
+
+      if (imageResponse.statusCode == 200) {
+        final imageData = jsonDecode(imageResponse.body);
+        setState(() {
+          userController.user?.profileImage = imageData['url'] ?? '';
+        });
+      } else {
+        print('Failed to fetch profile image: ${imageResponse.body}');
+      }
+    } catch (e) {
+      print('Error fetching profile image: $e');
+    } finally {
+      _isLoading.value = false;
+    }
   }
 
   Future<void> _updateProfile() async {
     try {
-      // Show loading indicator
       Get.dialog(
         const Center(child: CircularProgressIndicator()),
         barrierDismissible: false,
       );
 
-      // Example usage in account_page.dart
       final result = await userController.updateUserProfile(
         nom: _nomController.text,
         prenom: _prenomController.text,
@@ -92,7 +123,6 @@ class _AccountPageState extends State<AccountPage> {
                 : null,
       );
 
-      // Close loading dialog
       Get.back();
 
       if (result) {
@@ -113,7 +143,6 @@ class _AccountPageState extends State<AccountPage> {
         );
       }
     } catch (e) {
-      // Close loading dialog if still showing
       if (Get.isDialogOpen ?? false) {
         Get.back();
       }
@@ -131,6 +160,89 @@ class _AccountPageState extends State<AccountPage> {
           child: const Text('Réessayer', style: TextStyle(color: Colors.white)),
         ),
       );
+    }
+  }
+
+  Future<void> _changeProfilePicture() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      try {
+        Get.dialog(
+          const Center(child: CircularProgressIndicator()),
+          barrierDismissible: false,
+        );
+
+        // Read the file as bytes
+        final fileBytes = await pickedFile.readAsBytes();
+
+        // Create multipart request
+        final request = http.MultipartRequest(
+          'POST',
+          Uri.parse('http://localhost:3000/patients/upload-id-photo'),
+        );
+
+        // Add file to request
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'image',
+            fileBytes,
+            filename: pickedFile.name,
+          ),
+        );
+
+        // Add email parameter if needed
+        if (userController.user?.email != null) {
+          request.fields['email'] = userController.user!.email!;
+        }
+
+        // Send request
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
+        final data = jsonDecode(responseBody);
+
+        Get.back();
+
+        if (response.statusCode == 200) {
+          if (data['data']['url'] != null) {
+            setState(() {
+              userController.user?.profileImage = data['data']['url'];
+            });
+          } else if (data['data']['imageId'] != null) {
+            await _fetchProfileImage(data['data']['imageId']);
+          }
+
+          Get.snackbar(
+            'Succès',
+            'Photo de profil mise à jour avec succès',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            'Erreur',
+            'Échec de la mise à jour de la photo de profil: ${data['message'] ?? 'Unknown error'}',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+        }
+      } catch (e) {
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+
+        print('Error uploading profile picture: $e');
+        Get.snackbar(
+          'Erreur',
+          'Une erreur s\'est produite lors de la mise à jour. Veuillez réessayer.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     }
   }
 
@@ -196,18 +308,31 @@ class _AccountPageState extends State<AccountPage> {
     return Center(
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundImage:
-                userController.user?.profileImage != null
-                    ? NetworkImage(userController.user!.profileImage!)
-                    : const AssetImage('assets/images/default_pic.png')
-                        as ImageProvider,
-          ),
+          Obx(() {
+            final imageUrl = userController.user?.profileImage;
+            return CircleAvatar(
+              radius: 50,
+              backgroundImage:
+                  imageUrl != null && imageUrl.startsWith('http')
+                      ? NetworkImage(imageUrl)
+                      : const AssetImage('assets/images/default_pic.png')
+                          as ImageProvider,
+            );
+          }),
           const SizedBox(height: 16),
-          Text(
-            '${userController.user?.firstName} ${userController.user?.lastName}',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ElevatedButton(
+            onPressed: _changeProfilePicture,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF678E90),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Modifier la photo',
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
           ),
         ],
       ),

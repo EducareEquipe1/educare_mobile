@@ -6,7 +6,7 @@ class User {
   final String? phone;
   final String? matricule;
   final String? category;
-  final String? profileImage;
+  String? profileImage; // Remove `late` to allow reassignment
   final bool? isActive;
   final String? birthDate;
 
@@ -32,7 +32,7 @@ class User {
       phone: json['phone'],
       matricule: json['matricule'],
       category: json['categorie'],
-      profileImage: json['profile_image'],
+      profileImage: json['profile_image'], // Map this field
       isActive: json['is_active'],
       birthDate: json['birth_date'],
     );
@@ -47,9 +47,35 @@ class User {
       'phone': phone,
       'matricule': matricule,
       'categorie': category,
-      'profile_image': profileImage,
+      'profile_image': profileImage, // Include this field
       'is_active': isActive,
       'birth_date': birthDate,
     };
+  }
+
+  User copyWith({
+    int? id,
+    String? firstName,
+    String? lastName,
+    String? email,
+    String? phone,
+    String? matricule,
+    String? category,
+    String? profileImage,
+    bool? isActive,
+    String? birthDate,
+  }) {
+    return User(
+      id: id ?? this.id,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      matricule: matricule ?? this.matricule,
+      category: category ?? this.category,
+      profileImage: profileImage ?? this.profileImage,
+      isActive: isActive ?? this.isActive,
+      birthDate: birthDate ?? this.birthDate,
+    );
   }
 }
