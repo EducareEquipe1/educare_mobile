@@ -164,4 +164,6 @@ class UserController extends GetxController {
       rethrow;
     }
   }
+
+  String? get userEmail => _user.value?.email;
 }

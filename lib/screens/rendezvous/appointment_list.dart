@@ -54,13 +54,7 @@ class AppointmentList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(20),
-      itemCount: dummyAppointments.length,
-      itemBuilder: (context, index) {
-        return AppointmentCard(appointment: dummyAppointments[index]);
-      },
-    );
+    return Center(child: Text('Appointment List Placeholder'));
   }
 }
 

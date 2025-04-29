@@ -334,3 +334,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
+
+
+void onLoginSuccess(User user) {
+  final userController = Get.find<UserController>();
+  userController.setUser(user);
+
+  // Navigate to the home page or other pages
+  Get.offNamed('/home');
+}

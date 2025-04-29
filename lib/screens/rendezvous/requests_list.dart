@@ -1,44 +1,37 @@
 import 'package:flutter/material.dart';
 
 class RequestsList extends StatelessWidget {
-  const RequestsList({Key? key}) : super(key: key);
+  final List<Map<String, dynamic>> demandes;
+
+  const RequestsList({Key? key, required this.demandes}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.all(20),
-      itemCount: dummyRequests.length,
+      itemCount: demandes.length,
       itemBuilder: (context, index) {
-        return _RequestCard(request: dummyRequests[index]);
+        final demande = demandes[index];
+        return _RequestCard(
+          motif: demande['motif'],
+          date: demande['date'],
+          status: demande['status'],
+        );
       },
     );
   }
 }
 
-class AppointmentRequest {
+class _RequestCard extends StatelessWidget {
   final String motif;
   final DateTime date;
   final String status;
 
-  AppointmentRequest({
+  const _RequestCard({
     required this.motif,
     required this.date,
     required this.status,
   });
-}
-
-final List<AppointmentRequest> dummyRequests = [
-  AppointmentRequest(
-    motif: 'Maux de tête et fièvre légère depuis 3 jours',
-    date: DateTime(2025, 4, 22),
-    status: 'En attente',
-  ),
-];
-
-class _RequestCard extends StatelessWidget {
-  final AppointmentRequest request;
-
-  const _RequestCard({required this.request});
 
   @override
   Widget build(BuildContext context) {
@@ -51,13 +44,18 @@ class _RequestCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              request.motif,
+              motif,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             Text(
-              'Demandé le ${_formatDate(request.date)}',
+              'Demandé le ${_formatDate(date)}',
               style: const TextStyle(color: Color.fromRGBO(113, 128, 150, 1)),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Statut : $status',
+              style: const TextStyle(color: Color(0xFF718096)),
             ),
           ],
         ),
