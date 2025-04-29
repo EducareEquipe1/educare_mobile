@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'calendar_view.dart';
+import 'rendezvous_list.dart';
 import 'requests_list.dart';
 import 'faire_demande_dialog.dart';
 import '../../controllers/user_controller.dart';
@@ -13,16 +13,11 @@ class AppointmentsPage extends StatefulWidget {
 }
 
 class _AppointmentsPageState extends State<AppointmentsPage> {
-  final List<Map<String, dynamic>> _demandes = [];
   final String? userEmail = Get.find<UserController>().userEmail;
 
-  void _addDemande(String motif) {
+  void _addDemande(Map<String, dynamic> demande) {
     setState(() {
-      _demandes.add({
-        'motif': motif,
-        'date': DateTime.now(),
-        'status': 'En attente',
-      });
+      // Add the new demande to the list
     });
   }
 
@@ -62,8 +57,8 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
         ),
         body: TabBarView(
           children: [
-            const RendezVousCalendarView(),
-            RequestsList(demandes: _demandes),
+            RendezVousList(email: userEmail!), // Pass the user's email
+            RequestsList(email: userEmail!), // Pass the user's email
           ],
         ),
         floatingActionButton: FloatingActionButton(
@@ -71,7 +66,6 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
             if (userEmail != null) {
               showFaireDemandeDialog(context, _addDemande, userEmail!);
             } else {
-              // Handle case where email is not available
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Email utilisateur introuvable')),
               );

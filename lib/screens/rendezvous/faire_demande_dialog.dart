@@ -4,7 +4,7 @@ import 'dart:convert';
 
 void showFaireDemandeDialog(
   BuildContext context,
-  Function(String) onAddDemande,
+  Function(Map<String, dynamic>) onAddDemande,
   String email, // Pass the user's email
 ) {
   final TextEditingController motifController = TextEditingController();
@@ -27,7 +27,9 @@ void showFaireDemandeDialog(
   }
 
   Future<void> _submitDemande(String motif) async {
-    final url = Uri.parse('http://localhost:3000/patients/demanderdv/$email');
+    final url = Uri.parse(
+      'https://educare-backend-l6ue.onrender.com/patients/demanderdv/$email',
+    );
     try {
       final response = await http.post(
         url,
@@ -36,11 +38,15 @@ void showFaireDemandeDialog(
       );
 
       if (response.statusCode == 201) {
-        // Successfully created the demande
-        onAddDemande(motif); // Add the demande to the local list
+        final data = jsonDecode(response.body);
+        onAddDemande({
+          'motif': motif,
+          'date': DateTime.now(),
+          'status': 'En attente',
+          'id_rdv': data['id_rdv'], // Use the ID returned by the backend
+        });
         Navigator.pop(context);
       } else {
-        // Handle errors
         final error = jsonDecode(response.body)['error'];
         _showErrorDialog(context, error ?? 'Une erreur est survenue.');
       }

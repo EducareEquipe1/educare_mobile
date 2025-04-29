@@ -1,4 +1,6 @@
 import 'package:educare/controllers/user_controller.dart';
+import 'package:educare/screens/rendezvous/appointments_page.dart';
+import 'package:educare/screens/rendezvous/faire_demande_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -218,8 +220,20 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildActionButton('Demandez un\nRendez-vous', () {}),
-              _buildActionButton('Voir mes\nrendez-vous', () {}),
+              _buildActionButton('Demandez un\nRendez-vous', () {
+                // Navigate to the "Faire une demande" dialog
+                showFaireDemandeDialog(
+                  context,
+                  (demande) {
+                    // Handle the new demande if needed
+                  },
+                  userEmail ?? '', // Pass the user's email
+                );
+              }),
+              _buildActionButton('Voir mes\nrendez-vous', () {
+                // Navigate to the AppointmentsPage
+                Get.to(() => const AppointmentsPage());
+              }),
             ],
           ),
         ],
