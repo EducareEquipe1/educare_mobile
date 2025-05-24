@@ -29,7 +29,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final email = Get.find<UserController>().user?.email;
     if (email == null) return;
     final url =
-        'http://localhost:3000/notifications/$email'; // Use localhost for testing
+        ' https://educare-backend-l6ue.onrender.com/notifications/$email'; // Use localhost for testing
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

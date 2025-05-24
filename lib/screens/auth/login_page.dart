@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../app/routes/app_routes.dart';
 
 const mainGreen = Color.fromRGBO(45, 55, 72, 1);
@@ -41,6 +42,12 @@ class _LoginPageState extends State<LoginPage> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
+        final token = data['token']; // <-- Make sure your backend returns this
+
+        // Save the token
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+
         // Get the UserController instance
         final userController = Get.find<UserController>();
 
@@ -334,8 +341,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-
-
 
 void onLoginSuccess(User user) {
   final userController = Get.find<UserController>();

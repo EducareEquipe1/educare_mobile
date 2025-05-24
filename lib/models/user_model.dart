@@ -1,5 +1,6 @@
 class User {
   final int? id;
+  final int? patientId; // Add this line
   final String? firstName;
   final String? lastName;
   final String? email;
@@ -12,6 +13,7 @@ class User {
 
   User({
     this.id,
+    this.patientId, // Add this line
     this.firstName,
     this.lastName,
     this.email,
@@ -26,6 +28,7 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
+      patientId: json['patient_id'], // Add this line
       firstName: json['first_name'],
       lastName: json['last_name'],
       email: json['email'],
@@ -41,6 +44,7 @@ class User {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'patient_id': patientId, // Add this line
       'first_name': firstName,
       'last_name': lastName,
       'email': email,
@@ -55,6 +59,7 @@ class User {
 
   User copyWith({
     int? id,
+    int? patientId, // Add this line
     String? firstName,
     String? lastName,
     String? email,
@@ -67,6 +72,7 @@ class User {
   }) {
     return User(
       id: id ?? this.id,
+      patientId: patientId ?? this.patientId, // Add this line
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
       email: email ?? this.email,
