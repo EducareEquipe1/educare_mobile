@@ -24,11 +24,10 @@ class _RendezVousListState extends State<RendezVousList> {
 
   Future<void> _fetchRendezVous() async {
     final url = Uri.parse(
-      'http://localhost:3000/patients/rendezvous/${widget.email}',
+      'http://localhost:3000/patients/listerendezvousdupatient/${widget.email}',
     );
     try {
       final response = await http.get(url);
-
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
@@ -36,12 +35,11 @@ class _RendezVousListState extends State<RendezVousList> {
               data
                   .map(
                     (rendezVous) => {
-                      'id_rdv':
-                          rendezVous['id_rdv'] ?? 0, // Default to 0 if null
+                      'id_rdv': rendezVous['id_rdv'] ?? 0,
                       'motif': rendezVous['motif'] ?? 'Motif inconnu',
                       'date':
                           DateTime.tryParse(rendezVous['date'] ?? '') ??
-                          DateTime.now(), // Default to current date if parsing fails
+                          DateTime.now(),
                     },
                   )
                   .toList();

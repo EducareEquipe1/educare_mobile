@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-enum NotificationType { accepted, refused, scheduled }
+import '../models/notification_model.dart'; // <-- Import the enum here
 
 class NotificationCard extends StatelessWidget {
   final String title;
   final String message;
   final DateTime date;
-  final NotificationType type;
+  final NotificationType type; // Use the imported enum
 
   const NotificationCard({
     Key? key,
@@ -80,6 +79,8 @@ class NotificationCard extends StatelessWidget {
         return const Color.fromRGBO(229, 62, 62, 1);
       case NotificationType.scheduled:
         return const Color.fromRGBO(66, 153, 225, 1);
+      case NotificationType.other:
+        return const Color.fromRGBO(113, 128, 150, 1);
     }
   }
 

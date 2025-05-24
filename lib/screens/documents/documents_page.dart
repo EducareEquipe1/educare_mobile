@@ -4,6 +4,8 @@ import 'dossier_medical/dossier_medical_view.dart';
 import 'consultations/consultation_view.dart';
 import '../../controllers/dossier_medical_controller.dart';
 import '../../controllers/consultation_controller.dart';
+import '../../controllers/user_controller.dart';
+import '../../widgets/profile_avatar.dart';
 
 class DocumentsPage extends StatelessWidget {
   const DocumentsPage({Key? key}) : super(key: key);
@@ -29,11 +31,11 @@ class DocumentsPage extends StatelessWidget {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                backgroundImage: const AssetImage(
-                  'assets/images/default_pic.png',
+              child: Obx(
+                () => ProfileAvatar(
+                  imageUrl: Get.find<UserController>().user?.profileImage,
+                  radius: 20,
                 ),
-                radius: 20,
               ),
             ),
           ],

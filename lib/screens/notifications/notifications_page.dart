@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../models/notification_model.dart';
 import '../../widgets/notification_card.dart';
 import '../../../controllers/user_controller.dart';
 import '../../widgets/profile_avatar.dart';
+
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -12,33 +16,43 @@ class NotificationsPage extends StatefulWidget {
 }
 
 class _NotificationsPageState extends State<NotificationsPage> {
-  final List<Map<String, dynamic>> notifications = [
-    {
-      'title': 'Demande acceptée',
-      'message':
-          'Votre demande de rendez-vous a été acceptée. Le médecin fixera la date prochainement.',
-      'date': DateTime(2025, 4, 17, 12, 5),
-      'type': NotificationType.accepted,
-    },
-    {
-      'title': 'Demande refusée',
-      'message': 'Votre demande de rendez-vous a été refusée par le médecin.',
-      'date': DateTime(2025, 4, 19, 17, 30),
-      'type': NotificationType.refused,
-    },
-    {
-      'title': 'Rendez-vous programmé',
-      'message': 'Un rendez-vous est prévu le 25 avril à 15:00.',
-      'date': DateTime(2025, 4, 20, 10, 45),
-      'type': NotificationType.scheduled,
-    },
-    {
-      'title': 'Rendez-vous programmé',
-      'message': 'Un rendez-vous est prévu le 26 avril à 15:00.',
-      'date': DateTime(2025, 4, 20, 10, 45),
-      'type': NotificationType.scheduled,
-    },
-  ];
+  List<AppNotification> notifications = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchNotifications();
+  }
+
+  Future<void> fetchNotifications() async {
+    final email = Get.find<UserController>().user?.email;
+    if (email == null) return;
+    final url =
+        'http://localhost:3000/notifications/$email'; // Use localhost for testing
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<AppNotification> loaded =
+            (data['notifications'] as List)
+                .map((n) => AppNotification.fromJson(n))
+                .toList();
+        setState(() {
+          notifications = loaded;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +85,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               const SizedBox(height: 24),
               Expanded(
                 child:
-                    notifications.isEmpty
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : notifications.isEmpty
                         ? const Center(
                           child: Text(
                             'Aucune notification',
@@ -86,10 +102,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           itemBuilder: (context, index) {
                             final notification = notifications[index];
                             return NotificationCard(
-                              title: notification['title'] as String,
-                              message: notification['message'] as String,
-                              date: notification['date'] as DateTime,
-                              type: notification['type'] as NotificationType,
+                              title: notification.title,
+                              message: notification.content,
+                              date: notification.date,
+                              type: notification.type,
                             );
                           },
                         ),

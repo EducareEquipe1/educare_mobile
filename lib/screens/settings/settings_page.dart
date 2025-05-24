@@ -4,7 +4,6 @@ import 'package:educare/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../app/routes/app_routes.dart';
-import 'profile_image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controllers/user_controller.dart';
 
@@ -105,13 +104,10 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text('${user.firstName} ${user.lastName}'),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: _showProfileImagePicker,
-                    child: Obx(
-                      () => ProfileAvatar(
-                        imageUrl: userController.user?.profileImage,
-                        radius: 28,
-                      ),
+                  Obx(
+                    () => ProfileAvatar(
+                      imageUrl: userController.user?.profileImage,
+                      radius: 28,
                     ),
                   ),
                 ],
@@ -174,13 +170,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         );
       }),
-    );
-  }
-
-  void _showProfileImagePicker() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => const ProfileImagePicker(),
     );
   }
 

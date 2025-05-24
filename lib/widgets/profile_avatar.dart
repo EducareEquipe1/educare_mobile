@@ -14,7 +14,7 @@ class ProfileAvatar extends StatelessWidget {
       backgroundImage:
           imageUrl != null && imageUrl!.isNotEmpty
               ? NetworkImage(imageUrl!)
-              : const AssetImage('assets/images/default_pic.png')
+              : const AssetImage('assets/images/default_picture.png')
                   as ImageProvider,
     );
   }
