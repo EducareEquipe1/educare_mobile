@@ -7,7 +7,6 @@ import '../../widgets/notification_card.dart';
 import '../../../controllers/user_controller.dart';
 import '../../widgets/profile_avatar.dart';
 
-
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
 
@@ -29,7 +28,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final email = Get.find<UserController>().user?.email;
     if (email == null) return;
     final url =
-        ' https://educare-backend-l6ue.onrender.com/notifications/$email'; // Use localhost for testing
+        'https://educare-backend-l6ue.onrender.com/notifications/$email'; 
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
