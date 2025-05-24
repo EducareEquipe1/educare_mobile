@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../widgets/notification_card.dart';
+import '../../../controllers/user_controller.dart';
+import '../../widgets/profile_avatar.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({Key? key}) : super(key: key);
@@ -57,11 +60,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       color: Color.fromRGBO(45, 55, 72, 1),
                     ),
                   ),
-                  CircleAvatar(
-                    backgroundImage: const AssetImage(
-                      'assets/images/default_pic.png',
+                  Obx(
+                    () => ProfileAvatar(
+                      imageUrl: Get.find<UserController>().user?.profileImage,
+                      radius: 20,
                     ),
-                    radius: 20,
                   ),
                 ],
               ),

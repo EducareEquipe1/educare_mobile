@@ -1,3 +1,4 @@
+import 'package:educare/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'rendezvous_list.dart';
@@ -38,11 +39,11 @@ class _AppointmentsPageState extends State<AppointmentsPage> {
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                backgroundImage: const AssetImage(
-                  'assets/images/default_pic.png',
+              child: Obx(
+                () => ProfileAvatar(
+                  imageUrl: Get.find<UserController>().user?.profileImage,
+                  radius: 20,
                 ),
-                radius: 20,
               ),
             ),
           ],

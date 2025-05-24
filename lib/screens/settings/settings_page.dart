@@ -1,5 +1,6 @@
 import 'package:educare/screens/settings/account_page.dart';
 import 'package:educare/screens/settings/change_password_page.dart';
+import 'package:educare/widgets/profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../app/routes/app_routes.dart';
@@ -104,12 +105,14 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text('${user.firstName} ${user.lastName}'),
                     ],
                   ),
-                  CircleAvatar(
-                    backgroundImage:
-                        user.profileImage != null
-                            ? NetworkImage(user.profileImage!)
-                            : const AssetImage('assets/images/default_pic.png')
-                                as ImageProvider,
+                  GestureDetector(
+                    onTap: _showProfileImagePicker,
+                    child: Obx(
+                      () => ProfileAvatar(
+                        imageUrl: userController.user?.profileImage,
+                        radius: 28,
+                      ),
+                    ),
                   ),
                 ],
               ),

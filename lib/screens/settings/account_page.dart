@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
+import 'package:educare/widgets/profile_avatar.dart';
 import 'package:educare/widgets/profile_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../controllers/user_controller.dart';
 import '../../models/user_model.dart';
 
@@ -25,8 +28,6 @@ class _AccountPageState extends State<AccountPage> {
   final TextEditingController _prenomController = TextEditingController();
   final TextEditingController _telephoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _matriculeController = TextEditingController();
-  final TextEditingController _categorieController = TextEditingController();
 
   @override
   void initState() {
@@ -40,17 +41,30 @@ class _AccountPageState extends State<AccountPage> {
 
     if (userController.user?.email != null) {
       try {
-        print('Fetching profile for: ${userController.user!.email}');
+        final email = userController.user!.email!;
+        print('Fetching profile for: $email');
 
         // Fetch user info
         final profileResponse = await http.get(
           Uri.parse(
-            'https://educare-backend-l6ue.onrender.com/patients/profile/${userController.user!.email}',
+            'https://educare-backend-l6ue.onrender.com/patients/profile/$email',
           ),
         );
 
         print('Profile response status: ${profileResponse.statusCode}');
         print('Profile response body: ${profileResponse.body}');
+
+        String? profileImage;
+        // Fetch profile image URL
+        final imageResponse = await http.get(
+          Uri.parse(
+            'https://educare-backend-l6ue.onrender.com/patients/get-patient-photo/${Uri.encodeComponent(email)}',
+          ),
+        );
+        if (imageResponse.statusCode == 200) {
+          final imageData = jsonDecode(imageResponse.body);
+          profileImage = imageData['image'];
+        }
 
         if (profileResponse.statusCode == 200) {
           final data = jsonDecode(profileResponse.body)['data'];
@@ -59,13 +73,13 @@ class _AccountPageState extends State<AccountPage> {
             _prenomController.text = data['firstName'] ?? '';
             _telephoneController.text = data['phone'] ?? '';
             _emailController.text = data['email'] ?? '';
-
-            // Set profile image or default image
-            userController.user?.profileImage =
-                data['profileImage']?.isNotEmpty == true
-                    ? data['profileImage']
-                    : 'assets/images/default_pic.png';
           });
+          if (profileImage != null) {
+            // Use the controller's copyWith to update the user reactively
+            userController.setUser(
+              userController.user!.copyWith(profileImage: profileImage),
+            );
+          }
         } else {
           _hasError.value = true;
         }
@@ -85,7 +99,9 @@ class _AccountPageState extends State<AccountPage> {
       print('Fetching profile image with ID: $imageId');
 
       final imageResponse = await http.get(
-        Uri.parse('http://localhost:3000/patients/upload-id-photo/$imageId'),
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/upload-id-photo/$imageId',
+        ),
       );
 
       print('Image response status: ${imageResponse.statusCode}');
@@ -133,6 +149,12 @@ class _AccountPageState extends State<AccountPage> {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        // Redirect to settings page after a short delay
+        await Future.delayed(const Duration(milliseconds: 500));
+        Get.offAllNamed(
+          '/home', // Changed from '/settings' to '/home'
+          arguments: {'tab': 4}, // 4 = index of Settings tab
+        ); // or AppRoutes.settings if you use named routes
       } else {
         Get.snackbar(
           'Erreur',
@@ -174,44 +196,47 @@ class _AccountPageState extends State<AccountPage> {
           barrierDismissible: false,
         );
 
-        // Read the file as bytes
-        final fileBytes = await pickedFile.readAsBytes();
+        final email = userController.user?.email;
+        if (email == null) return;
 
-        // Create multipart request
-        final request = http.MultipartRequest(
-          'POST',
-          Uri.parse('http://localhost:3000/patients/upload-id-photo'),
-        );
+        // Use deployed backend for web, local for mobile
+        final backendUrl =
+            'https://educare-backend-l6ue.onrender.com/patients/upload-id-photo';
+        final request = http.MultipartRequest('POST', Uri.parse(backendUrl));
 
-        // Add file to request
-        request.files.add(
-          http.MultipartFile.fromBytes(
+        if (kIsWeb) {
+          final bytes = await pickedFile.readAsBytes();
+          final multipartFile = http.MultipartFile.fromBytes(
             'image',
-            fileBytes,
+            bytes,
             filename: pickedFile.name,
-          ),
-        );
-
-        // Add email parameter if needed
-        if (userController.user?.email != null) {
-          request.fields['email'] = userController.user!.email!;
+            contentType: MediaType('image', pickedFile.name.split('.').last),
+          );
+          request.files.add(multipartFile);
+        } else {
+          // On mobile, use fromPath
+          request.files.add(
+            await http.MultipartFile.fromPath(
+              'image',
+              pickedFile.path,
+              filename: pickedFile.name,
+            ),
+          );
         }
 
-        // Send request
+        request.fields['email'] = email;
+
         final response = await request.send();
         final responseBody = await response.stream.bytesToString();
         final data = jsonDecode(responseBody);
 
         Get.back();
 
-        if (response.statusCode == 200) {
-          if (data['data']['url'] != null) {
-            setState(() {
-              userController.user?.profileImage = data['data']['url'];
-            });
-          } else if (data['data']['imageId'] != null) {
-            await _fetchProfileImage(data['data']['imageId']);
-          }
+        if (response.statusCode == 200 && data['imageUrl'] != null) {
+          userController.setUser(
+            userController.user!.copyWith(profileImage: data['imageUrl']),
+          );
+          await userController.fetchUserProfile(email);
 
           Get.snackbar(
             'Succès',
@@ -223,7 +248,7 @@ class _AccountPageState extends State<AccountPage> {
         } else {
           Get.snackbar(
             'Erreur',
-            'Échec de la mise à jour de la photo de profil: ${data['message'] ?? 'Unknown error'}',
+            'Échec de la mise à jour de la photo de profil',
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.red,
             colorText: Colors.white,
@@ -233,7 +258,6 @@ class _AccountPageState extends State<AccountPage> {
         if (Get.isDialogOpen ?? false) {
           Get.back();
         }
-
         print('Error uploading profile picture: $e');
         Get.snackbar(
           'Erreur',
@@ -285,16 +309,6 @@ class _AccountPageState extends State<AccountPage> {
               _buildInfoField('Prénom', _prenomController),
               _buildInfoField('Email', _emailController, enabled: false),
               _buildInfoField('Téléphone', _telephoneController),
-              _buildInfoField(
-                'Matricule',
-                _matriculeController,
-                enabled: false,
-              ),
-              _buildInfoField(
-                'Catégorie',
-                _categorieController,
-                enabled: false,
-              ),
               const SizedBox(height: 32),
               _buildSaveButton(),
             ],
@@ -308,17 +322,12 @@ class _AccountPageState extends State<AccountPage> {
     return Center(
       child: Column(
         children: [
-          Obx(() {
-            final imageUrl = userController.user?.profileImage;
-            return CircleAvatar(
+          Obx(
+            () => ProfileAvatar(
+              imageUrl: userController.user?.profileImage,
               radius: 50,
-              backgroundImage:
-                  imageUrl != null && imageUrl.startsWith('http')
-                      ? NetworkImage(imageUrl)
-                      : const AssetImage('assets/images/default_pic.png')
-                          as ImageProvider,
-            );
-          }),
+            ),
+          ),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _changeProfilePicture,

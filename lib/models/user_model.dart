@@ -32,7 +32,7 @@ class User {
       phone: json['phone'],
       matricule: json['matricule'],
       category: json['categorie'],
-      profileImage: json['profile_image'], // Map this field
+      profileImage: json['profile_image'] ?? json['photo'], // Accept both
       isActive: json['is_active'],
       birthDate: json['birth_date'],
     );

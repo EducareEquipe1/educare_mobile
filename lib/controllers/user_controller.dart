@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -45,20 +46,27 @@ class UserController extends GetxController {
   Future<void> fetchUserProfile(String email) async {
     try {
       final response = await http.get(
-        Uri.parse(
-          'https://educare-backend-l6ue.onrender.com/patients/profile/$email',
-        ),
+        Uri.parse('$baseUrl/patients/profile/$email'),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body)['data'];
+        // Fetch the profile image URL
+        final imageResponse = await http.get(
+          Uri.parse('$baseUrl/patients/get-patient-photo/$email'),
+        );
+        String? profileImage;
+        if (imageResponse.statusCode == 200) {
+          final imageData = jsonDecode(imageResponse.body);
+          profileImage = imageData['image'];
+        }
         _user.value = User(
           email: data['email'],
           firstName: data['firstName'],
           lastName: data['lastName'],
           phone: data['phone'],
-          profileImage: data['profileImage'],
+          profileImage: profileImage,
         );
         update();
       } else {
@@ -149,8 +157,6 @@ class UserController extends GetxController {
           firstName: data['firstName'],
           lastName: data['lastName'],
           phone: data['phone'],
-          matricule: _user.value?.matricule,
-          category: _user.value?.category,
           profileImage: _user.value?.profileImage,
           isActive: _user.value?.isActive,
           birthDate: _user.value?.birthDate,
@@ -163,6 +169,36 @@ class UserController extends GetxController {
       print('Error refreshing user profile: $e');
       rethrow;
     }
+  }
+
+  Future<bool> uploadProfileImage(File imageFile) async {
+    try {
+      final user = _user.value;
+      if (user == null || user.email == null)
+        throw Exception('No user logged in');
+      final uri = Uri.parse('$baseUrl/patients/upload-id-photo');
+      final request = http.MultipartRequest('POST', uri);
+      request.files.add(
+        await http.MultipartFile.fromPath('image', imageFile.path),
+      );
+      request.fields['email'] = user.email!;
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      if (response.statusCode == 200) {
+        await fetchUserProfile(user.email!);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      print('Error uploading profile image: $e');
+      return false;
+    }
+  }
+
+  String? getProfileImageUrl() {
+    final user = _user.value;
+    if (user == null || user.email == null) return null;
+    return '$baseUrl/patients/get-patient-photo/${user.email}';
   }
 
   String? get userEmail => _user.value?.email;

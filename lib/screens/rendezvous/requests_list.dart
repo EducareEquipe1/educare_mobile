@@ -61,32 +61,6 @@ class _RequestsListState extends State<RequestsList> {
     }
   }
 
-  Future<void> _cancelDemande(BuildContext context, int idRdv) async {
-    final url = Uri.parse(
-      'https://educare-backend-l6ue.onrender.com/patients/annulerdv/$idRdv',
-    );
-    try {
-      final response = await http.put(url);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          _demandes.removeWhere((demande) => demande['id_rdv'] == idRdv);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Demande annulée avec succès')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de l\'annulation')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible de se connecter au serveur')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -115,8 +89,6 @@ class _RequestsListState extends State<RequestsList> {
           motif: demande['motif'],
           date: demande['date'],
           status: demande['status'],
-          idRdv: demande['id_rdv'], // Pass the ID of the demande
-          onCancel: () => _cancelDemande(context, demande['id_rdv']),
         );
       },
     );
@@ -127,15 +99,11 @@ class _RequestCard extends StatelessWidget {
   final String motif;
   final DateTime date;
   final String status;
-  final int idRdv;
-  final VoidCallback onCancel;
 
   const _RequestCard({
     required this.motif,
     required this.date,
     required this.status,
-    required this.idRdv,
-    required this.onCancel,
   });
 
   @override
@@ -162,25 +130,6 @@ class _RequestCard extends StatelessWidget {
               'Statut : $status',
               style: const TextStyle(color: Color(0xFF718096)),
             ),
-            const SizedBox(height: 16),
-            if (status ==
-                'En attente') // Show the button only if the status is "En attente"
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: onCancel,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Annuler',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

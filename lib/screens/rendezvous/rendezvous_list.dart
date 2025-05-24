@@ -61,32 +61,6 @@ class _RendezVousListState extends State<RendezVousList> {
     }
   }
 
-  Future<void> _cancelRendezVous(BuildContext context, int idRdv) async {
-    final url = Uri.parse('http://localhost:3000/patients/annulerdv/$idRdv');
-    try {
-      final response = await http.put(url);
-
-      if (response.statusCode == 200) {
-        setState(() {
-          _rendezVous.removeWhere(
-            (rendezVous) => rendezVous['id_rdv'] == idRdv,
-          );
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Rendez-vous annulé avec succès')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erreur lors de l\'annulation')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossible de se connecter au serveur')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -114,8 +88,6 @@ class _RendezVousListState extends State<RendezVousList> {
         return _RendezVousCard(
           motif: rendezVous['motif'],
           date: rendezVous['date'],
-          idRdv: rendezVous['id_rdv'],
-          onCancel: () => _cancelRendezVous(context, rendezVous['id_rdv']),
         );
       },
     );
@@ -125,15 +97,8 @@ class _RendezVousListState extends State<RendezVousList> {
 class _RendezVousCard extends StatelessWidget {
   final String motif;
   final DateTime date;
-  final int idRdv;
-  final VoidCallback onCancel;
 
-  const _RendezVousCard({
-    required this.motif,
-    required this.date,
-    required this.idRdv,
-    required this.onCancel,
-  });
+  const _RendezVousCard({required this.motif, required this.date});
 
   @override
   Widget build(BuildContext context) {
@@ -153,23 +118,6 @@ class _RendezVousCard extends StatelessWidget {
             Text(
               'Date : ${_formatDate(date)}',
               style: const TextStyle(color: Color.fromRGBO(113, 128, 150, 1)),
-            ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: onCancel,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Annuler',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
             ),
           ],
         ),

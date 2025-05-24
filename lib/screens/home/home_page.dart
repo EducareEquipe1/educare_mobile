@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'health_tips.dart';
+import 'package:educare/widgets/profile_avatar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -58,11 +59,11 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image.asset('assets/images/dark_logo.png', height: 40),
-                  CircleAvatar(
-                    backgroundImage: const AssetImage(
-                      'assets/images/default_pic.png',
+                  Obx(
+                    () => ProfileAvatar(
+                      imageUrl: userController.user?.profileImage,
+                      radius: 20,
                     ),
-                    radius: 20,
                   ),
                 ],
               ),
