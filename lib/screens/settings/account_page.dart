@@ -199,12 +199,12 @@ class _AccountPageState extends State<AccountPage> {
         final email = userController.user?.email;
         if (email == null) return;
 
-        // Use deployed backend for web, local for mobile
         final backendUrl =
             'https://educare-backend-l6ue.onrender.com/patients/upload-id-photo';
         final request = http.MultipartRequest('POST', Uri.parse(backendUrl));
 
         if (kIsWeb) {
+          // For web, use fromBytes
           final bytes = await pickedFile.readAsBytes();
           final multipartFile = http.MultipartFile.fromBytes(
             'image',
@@ -214,12 +214,21 @@ class _AccountPageState extends State<AccountPage> {
           );
           request.files.add(multipartFile);
         } else {
-          // On mobile, use fromPath
+          // For mobile, set the content type explicitly
+          final extension = pickedFile.path.split('.').last.toLowerCase();
+          final mimeType =
+              extension == 'png'
+                  ? 'image/png'
+                  : extension == 'jpg' || extension == 'jpeg'
+                  ? 'image/jpeg'
+                  : 'image/*';
+
           request.files.add(
             await http.MultipartFile.fromPath(
               'image',
               pickedFile.path,
               filename: pickedFile.name,
+              contentType: MediaType.parse(mimeType),
             ),
           );
         }
@@ -229,12 +238,16 @@ class _AccountPageState extends State<AccountPage> {
         final response = await request.send();
         final responseBody = await response.stream.bytesToString();
         final data = jsonDecode(responseBody);
+        print('Upload response: $data');
 
         Get.back();
 
-        if (response.statusCode == 200 && data['imageUrl'] != null) {
+        // Accept both imageUrl and image for compatibility
+        final imageUrl = data['imageUrl'] ?? data['image'];
+
+        if (response.statusCode == 200 && imageUrl != null) {
           userController.setUser(
-            userController.user!.copyWith(profileImage: data['imageUrl']),
+            userController.user!.copyWith(profileImage: imageUrl),
           );
           await userController.fetchUserProfile(email);
 
