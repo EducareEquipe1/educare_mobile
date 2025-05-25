@@ -24,7 +24,7 @@ class _RendezVousListState extends State<RendezVousList> {
 
   Future<void> _fetchRendezVous() async {
     final url = Uri.parse(
-      'https://educare-backend-l6ue.onrender.com/listerendezvousdupatient/${widget.email}',
+      'https://educare-backend-l6ue.onrender.com/patients/listerendezvousdupatient/${widget.email}',
     );
     try {
       final response = await http.get(url);

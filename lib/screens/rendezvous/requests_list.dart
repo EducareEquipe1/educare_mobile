@@ -24,7 +24,7 @@ class _RequestsListState extends State<RequestsList> {
 
   Future<void> _fetchDemandes() async {
     final url = Uri.parse(
-      'https://educare-backend-l6ue.onrender.com/patients/demandes/${widget.email}',
+      'https://educare-backend-l6ue.onrender.com/patients/listedemandesdupatient/${widget.email}',
     );
     try {
       final response = await http.get(url);
