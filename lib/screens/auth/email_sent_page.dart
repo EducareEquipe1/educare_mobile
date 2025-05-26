@@ -8,6 +8,10 @@ class EmailSentPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final email =
+        Get.arguments != null && Get.arguments['email'] != null
+            ? Get.arguments['email']
+            : 'votre adresse e-mail';
 
     return Scaffold(
       body: Container(
@@ -38,7 +42,7 @@ class EmailSentPage extends StatelessWidget {
               ),
               SizedBox(height: size.height * 0.02),
               Text(
-                'Nous avons envoyé un e-mail à\nu.example@esi-sba.dz !\nCliquez sur le lien dans l’e-mail pour réinitialiser votre compte.',
+                'Nous avons envoyé un e-mail à\n$email !\nCliquez sur le lien dans l’e-mail pour réinitialiser votre compte.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: size.width * 0.04, color: mainGreen),
               ),
@@ -48,7 +52,7 @@ class EmailSentPage extends StatelessWidget {
                 height: size.height * 0.065,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Retry sending the email
+                    // Optionally, implement retry logic here
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
@@ -97,10 +101,5 @@ class EmailSentPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _sendResetLink() {
-    // Simulate sending a reset link
-    Get.toNamed(AppRoutes.emailSent); // Navigate to the email sent page
   }
 }

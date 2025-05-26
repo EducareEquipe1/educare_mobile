@@ -33,10 +33,7 @@ class AppPages {
       page: () => const NotificationsPage(),
     ),
     GetPage(name: AppRoutes.settings, page: () => const SettingsPage()),
-    GetPage(
-      name: AppRoutes.resetPassword,
-      page: () => ResetPasswordPage(), // Add token handling if required
-    ),
+    GetPage(name: AppRoutes.resetPassword, page: () => ResetPasswordPage()),
     GetPage(name: AppRoutes.passwordChanged, page: () => PasswordChangedPage()),
     GetPage(name: AppRoutes.forgotPassword, page: () => ForgotPasswordPage()),
     GetPage(name: AppRoutes.emailSent, page: () => EmailSentPage()),

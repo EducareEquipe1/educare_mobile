@@ -7,9 +7,7 @@ import '../../app/routes/app_routes.dart';
 const mainGreen = Color.fromRGBO(45, 55, 72, 1);
 
 class ResetPasswordPage extends StatefulWidget {
-  final String? token; // Add a token parameter
-
-  const ResetPasswordPage({Key? key, this.token}) : super(key: key);
+  const ResetPasswordPage({Key? key}) : super(key: key);
 
   @override
   _ResetPasswordPageState createState() => _ResetPasswordPageState();
@@ -24,12 +22,15 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   bool _isConfirmPasswordVisible = false;
   String _message = '';
 
+  String? _token;
+
   @override
   void initState() {
     super.initState();
-    if (widget.token != null) {
-      // Handle the token (e.g., validate it or pre-fill fields)
-      print('Received token: ${widget.token}');
+    // Extract token from query parameters
+    _token = Get.parameters['token'];
+    if (_token != null) {
+      print('Received token: $_token');
     }
   }
 
@@ -50,12 +51,10 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
 
     try {
       final response = await http.post(
-        Uri.parse(
-          'https://educare-backend-l6ue.onrender.com/patients/set-new-password',
-        ),
+        Uri.parse('http://localhost:3000/patients/set-new-password'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'token': widget.token,
+          'token': _token,
           'password': _passwordController.text,
         }),
       );

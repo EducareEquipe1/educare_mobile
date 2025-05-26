@@ -1,12 +1,14 @@
 enum NotificationType { accepted, refused, scheduled, other }
 
 class AppNotification {
+  final int id; // <-- Add this line
   final String title;
   final String content;
   final DateTime date;
   final NotificationType type;
 
   AppNotification({
+    required this.id, // <-- Add this line
     required this.title,
     required this.content,
     required this.date,
@@ -29,6 +31,7 @@ class AppNotification {
         type = NotificationType.other;
     }
     return AppNotification(
+      id: json['id'], // <-- Add this line
       title: json['title'] ?? '',
       content: json['content'] ?? '',
       date: DateTime.parse(json['created_at']),
