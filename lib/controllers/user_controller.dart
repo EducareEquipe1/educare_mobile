@@ -74,7 +74,10 @@ class UserController extends GetxController {
           lastName: data['lastName'],
           phone: data['phone'],
           profileImage: profileImage,
-          birthDate: data['date_naissance'], // <-- Add this line
+          birthDate:
+              data['date_naissance'] ??
+              data['birth_date'] ??
+              '', // <-- Add this line
         );
         update();
       } else {

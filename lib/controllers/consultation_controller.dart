@@ -68,19 +68,17 @@ class ConsultationController extends GetxController {
       final userController = Get.find<UserController>();
       var user = userController.user;
 
-      final age = _calculateAge(user?.birthDate);
-
-      // If address is not set, fetch dossier medical first
-      if ((userController.address == null || userController.address!.isEmpty) &&
-          user?.email != null) {
+      // Always fetch dossier medical to get up-to-date address and birthDate
+      if (user?.email != null) {
         await userController.fetchDossierMedical(user!.email!);
+        user = userController.user; // reload after fetch
       }
       final address = userController.address ?? '';
       final patientName = user?.lastName ?? '';
       final patientFirstName = user?.firstName ?? '';
+      final age = _calculateAge(user?.birthDate);
 
-      final token =
-          await userController.getToken(); // Implement this to get your JWT
+      final token = await userController.getToken();
       final response = await http.get(
         Uri.parse(
           'https://educare-backend-l6ue.onrender.com/patients/ordonnance/by-consultation/$consultationId',
