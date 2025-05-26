@@ -1,129 +1,161 @@
 class ExamenMedical {
-  final String id;
-  final String date;
-  final ExamenPhysique examenPhysique;
-  final ExamenParAppareils examenParAppareils;
-  final List<String> explorationsFonctionnelles;
-  final List<ExamenComplementaire> examensComplementaires;
+  final int id;
+  final int consultationId;
+  final double? poids;
+  final double? taille;
+  final double? imc;
+  final double? tension;
+  final double? visionD;
+  final double? visionG;
+  final int? larmoiement;
+  final int? douleurs;
+  final int? tachesYeux;
+  final int? auditionD;
+  final int? auditionG;
+  final int? sifflements;
+  final int? angines;
+  final int? epistaxis;
+  final int? rhinorrhee;
+  final int? cephalies;
+  final int? vertiges;
+  final int? troublesSommeil;
+  final int? peauNormal;
+  final int? peauAnormale;
+  final int? douleursMusculaires;
+  final int? douleursArticulaires;
+  final int? douleursNeurologiques;
+  final int? toux;
+  final int? dyspnee;
+  final int? douleursThoraciques;
+  final int? palpitations;
+  final int? oedemes;
+  final int? cyanose;
+  final int? pyrosis;
+  final int? vomissements;
+  final int? douleursAbdominales;
+  final int? dysurie;
+  final int? hematurie;
+  final int? cyclesIrreguliers;
+  final String? fonctionRespiratoire;
+  final String? fonctionCirculatoire;
+  final String? fonctionMotrice;
+  final String? sanguins;
+  final String? urinaires;
+  final String? radiologiques;
+  final int? hepatitesPos;
+  final int? hepatitesNeg;
+  final int? syphilisPos;
+  final int? syphilisNeg;
+  final int? vihPos;
+  final int? vihNeg;
 
   ExamenMedical({
     required this.id,
-    required this.date,
-    required this.examenPhysique,
-    required this.examenParAppareils,
-    required this.explorationsFonctionnelles,
-    required this.examensComplementaires,
+    required this.consultationId,
+    this.poids,
+    this.taille,
+    this.imc,
+    this.tension,
+    this.visionD,
+    this.visionG,
+    this.larmoiement,
+    this.douleurs,
+    this.tachesYeux,
+    this.auditionD,
+    this.auditionG,
+    this.sifflements,
+    this.angines,
+    this.epistaxis,
+    this.rhinorrhee,
+    this.cephalies,
+    this.vertiges,
+    this.troublesSommeil,
+    this.peauNormal,
+    this.peauAnormale,
+    this.douleursMusculaires,
+    this.douleursArticulaires,
+    this.douleursNeurologiques,
+    this.toux,
+    this.dyspnee,
+    this.douleursThoraciques,
+    this.palpitations,
+    this.oedemes,
+    this.cyanose,
+    this.pyrosis,
+    this.vomissements,
+    this.douleursAbdominales,
+    this.dysurie,
+    this.hematurie,
+    this.cyclesIrreguliers,
+    this.fonctionRespiratoire,
+    this.fonctionCirculatoire,
+    this.fonctionMotrice,
+    this.sanguins,
+    this.urinaires,
+    this.radiologiques,
+    this.hepatitesPos,
+    this.hepatitesNeg,
+    this.syphilisPos,
+    this.syphilisNeg,
+    this.vihPos,
+    this.vihNeg,
   });
-}
 
-class ExamenPhysique {
-  final String poids;
-  final String taille;
-  final String tensionArterielle;
+  factory ExamenMedical.fromJson(Map<String, dynamic> json) {
+    double? parseDouble(dynamic v) =>
+        v == null ? null : double.tryParse(v.toString());
+    int? parseInt(dynamic v) => v == null ? null : int.tryParse(v.toString());
 
-  ExamenPhysique({
-    required this.poids,
-    required this.taille,
-    required this.tensionArterielle,
-  });
-}
-
-class ExamenParAppareils {
-  final Ophtalmologique ophtalmologique;
-  final ORL orl;
-  final NeurologiquePsychisme neurologiquePsychisme;
-  final PeauMuqueuses peauMuqueuses;
-  final AppareilLocomoteur appareilLocomoteur;
-  final AppareilCardioVasculaire appareilCardioVasculaire;
-  final AppareilDigestif appareilDigestif;
-  final AppareilGenitoUrinaire appareilGenitoUrinaire;
-
-  ExamenParAppareils({
-    required this.ophtalmologique,
-    required this.orl,
-    required this.neurologiquePsychisme,
-    required this.peauMuqueuses,
-    required this.appareilLocomoteur,
-    required this.appareilCardioVasculaire,
-    required this.appareilDigestif,
-    required this.appareilGenitoUrinaire,
-  });
-}
-
-class Ophtalmologique {
-  final String acuiteVisuelleOD;
-  final String acuiteVisuelleOG;
-  final List<String> symptomes;
-
-  Ophtalmologique({
-    required this.acuiteVisuelleOD,
-    required this.acuiteVisuelleOG,
-    required this.symptomes,
-  });
-}
-
-class ORL {
-  final String auditionOD;
-  final String auditionOG;
-  final List<String> symptomes;
-
-  ORL({
-    required this.auditionOD,
-    required this.auditionOG,
-    required this.symptomes,
-  });
-}
-
-class NeurologiquePsychisme {
-  final List<String> symptomes;
-
-  NeurologiquePsychisme({required this.symptomes});
-}
-
-class PeauMuqueuses {
-  final bool normal;
-  final bool anormal;
-  final List<String> symptomes;
-
-  PeauMuqueuses({
-    required this.normal,
-    required this.anormal,
-    required this.symptomes,
-  });
-}
-
-class AppareilLocomoteur {
-  final List<String> symptomes;
-
-  AppareilLocomoteur({required this.symptomes});
-}
-
-class AppareilCardioVasculaire {
-  final List<String> symptomes;
-
-  AppareilCardioVasculaire({required this.symptomes});
-}
-
-class AppareilDigestif {
-  final List<String> symptomes;
-
-  AppareilDigestif({required this.symptomes});
-}
-
-class AppareilGenitoUrinaire {
-  final List<String> symptomes;
-
-  AppareilGenitoUrinaire({required this.symptomes});
-}
-
-class ExamenComplementaire {
-  final String type;
-  final String resultat;
-  final bool negatif;
-
-  ExamenComplementaire({
-    required this.type,
-    required this.resultat,
-    required this.negatif,
-  });
+    return ExamenMedical(
+      id: parseInt(json['id']) ?? 0,
+      consultationId: parseInt(json['consultation_id']) ?? 0,
+      poids: parseDouble(json['poids']),
+      taille: parseDouble(json['taille']),
+      imc: parseDouble(json['IMC']),
+      tension: parseDouble(json['tension']),
+      visionD: parseDouble(json['vision_d']),
+      visionG: parseDouble(json['vision_g']),
+      larmoiement: parseInt(json['larmoiement']),
+      douleurs: parseInt(json['douleurs']),
+      tachesYeux: parseInt(json['taches_yeux']),
+      auditionD: parseInt(json['audition_d']),
+      auditionG: parseInt(json['audition_g']),
+      sifflements: parseInt(json['sifflements']),
+      angines: parseInt(json['angines']),
+      epistaxis: parseInt(json['epistaxis']),
+      rhinorrhee: parseInt(json['rhinorrhee']),
+      cephalies: parseInt(json['cephalies']),
+      vertiges: parseInt(json['vertiges']),
+      troublesSommeil: parseInt(json['troubles_sommeil']),
+      peauNormal: parseInt(json['peau_normal']),
+      peauAnormale: parseInt(json['peau_anormale']),
+      douleursMusculaires: parseInt(json['douleurs_musculaires']),
+      douleursArticulaires: parseInt(json['douleurs_articulaires']),
+      douleursNeurologiques: parseInt(json['douleurs_neurologiques']),
+      toux: parseInt(json['toux']),
+      dyspnee: parseInt(json['dyspnee']),
+      douleursThoraciques: parseInt(json['douleurs_thoraciques']),
+      palpitations: parseInt(json['palpitations']),
+      oedemes: parseInt(json['oedemes']),
+      cyanose: parseInt(json['cyanose']),
+      pyrosis: parseInt(json['pyrosis']),
+      vomissements: parseInt(json['vomissements']),
+      douleursAbdominales: parseInt(json['douleurs_abdominales']),
+      dysurie: parseInt(json['dysurie']),
+      hematurie: parseInt(json['hematurie']),
+      cyclesIrreguliers: parseInt(json['cycles_irreguliers']),
+      fonctionRespiratoire: json['fonction_respiratoire'],
+      fonctionCirculatoire: json['fonction_circulatoire'],
+      fonctionMotrice: json['fonction_motrice'],
+      sanguins: json['sanguins'],
+      urinaires: json['urinaires'],
+      radiologiques: json['radiologiques'],
+      hepatitesPos: parseInt(json['hepatites_pos']),
+      hepatitesNeg: parseInt(json['hepatites_neg']),
+      syphilisPos: parseInt(json['syphilis_pos']),
+      syphilisNeg: parseInt(json['syphilis_neg']),
+      vihPos: parseInt(json['vih_pos']),
+      vihNeg: parseInt(json['vih_neg']),
+    );
+  }
 }

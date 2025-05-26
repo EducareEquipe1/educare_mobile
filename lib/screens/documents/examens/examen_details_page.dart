@@ -17,7 +17,7 @@ class ExamenDetailsPage extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Examen Medical',
+          'Examen Médical',
           style: TextStyle(
             color: Color(0xFF2D3748),
             fontSize: 16,
@@ -32,41 +32,175 @@ class ExamenDetailsPage extends StatelessWidget {
               'EXAMEN PHYSIQUE',
               Column(
                 children: [
-                  _buildDetailRow('Poids', examen.examenPhysique.poids),
-                  _buildDetailRow('Taille', examen.examenPhysique.taille),
+                  _buildDetailRow('Poids', examen.poids?.toString() ?? ''),
+                  _buildDetailRow('Taille', examen.taille?.toString() ?? ''),
+                  _buildDetailRow('IMC', examen.imc?.toString() ?? ''),
+                  _buildDetailRow('Tension', examen.tension?.toString() ?? ''),
+                ],
+              ),
+            ),
+            _buildSection(
+              'OPHTALMOLOGIQUE',
+              Column(
+                children: [
                   _buildDetailRow(
-                    'Tension Artérielle',
-                    examen.examenPhysique.tensionArterielle,
+                    'Vision OD',
+                    examen.visionD?.toString() ?? '',
+                  ),
+                  _buildDetailRow(
+                    'Vision OG',
+                    examen.visionG?.toString() ?? '',
+                  ),
+                  _buildCheckbox('Larmoiement', examen.larmoiement == 1),
+                  _buildCheckbox('Douleur', examen.douleurs == 1),
+                  _buildCheckbox(
+                    'Taches devant les yeux',
+                    examen.tachesYeux == 1,
                   ),
                 ],
               ),
             ),
             _buildSection(
-              'EXAMEN PAR APPAREILS',
-              _buildAppareilsSection(examen.examenParAppareils),
+              'ORL',
+              Column(
+                children: [
+                  _buildDetailRow(
+                    'Audition OD',
+                    examen.auditionD?.toString() ?? '',
+                  ),
+                  _buildDetailRow(
+                    'Audition OG',
+                    examen.auditionG?.toString() ?? '',
+                  ),
+                  _buildCheckbox('Sifflements', examen.sifflements == 1),
+                  _buildCheckbox('Angines répétées', examen.angines == 1),
+                  _buildCheckbox('Épistaxis', examen.epistaxis == 1),
+                  _buildCheckbox('Rhinorrhée', examen.rhinorrhee == 1),
+                ],
+              ),
             ),
-            if (examen.explorationsFonctionnelles.isNotEmpty)
-              _buildSection(
-                'EXPLORATIONS FONCTIONNELLES',
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      examen.explorationsFonctionnelles
-                          .map((e) => _buildBulletPoint(e))
-                          .toList(),
-                ),
+            _buildSection(
+              'NEUROLOGIQUE ET PSYCHISME',
+              Column(
+                children: [
+                  _buildCheckbox('Céphalées', examen.cephalies == 1),
+                  _buildCheckbox('Vertiges', examen.vertiges == 1),
+                  _buildCheckbox(
+                    'Troubles du sommeil',
+                    examen.troublesSommeil == 1,
+                  ),
+                ],
               ),
-            if (examen.examensComplementaires.isNotEmpty)
-              _buildSection(
-                'EXAMENS COMPLÉMENTAIRES',
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:
-                      examen.examensComplementaires
-                          .map((e) => _buildComplementaireItem(e))
-                          .toList(),
-                ),
+            ),
+            _buildSection(
+              'PEAU ET MUQUEUSES',
+              Column(
+                children: [
+                  _buildCheckbox('Normal', examen.peauNormal == 1),
+                  _buildCheckbox('Anormal', examen.peauAnormale == 1),
+                ],
               ),
+            ),
+            _buildSection(
+              'APPAREIL LOCOMOTEUR',
+              Column(
+                children: [
+                  _buildCheckbox(
+                    'Douleurs Musculaires',
+                    examen.douleursMusculaires == 1,
+                  ),
+                  _buildCheckbox(
+                    'Douleurs Articulaires',
+                    examen.douleursArticulaires == 1,
+                  ),
+                  _buildCheckbox(
+                    'Douleurs Neurologiques',
+                    examen.douleursNeurologiques == 1,
+                  ),
+                ],
+              ),
+            ),
+            _buildSection(
+              'APPAREIL RESPIRATOIRE',
+              Column(
+                children: [
+                  _buildCheckbox('Toux', examen.toux == 1),
+                  _buildCheckbox('Dyspnée', examen.dyspnee == 1),
+                  _buildDetailRow(
+                    'Fonction respiratoire',
+                    examen.fonctionRespiratoire ?? '',
+                  ),
+                ],
+              ),
+            ),
+            _buildSection(
+              'APPAREIL CARDIO-VASCULAIRE',
+              Column(
+                children: [
+                  _buildCheckbox(
+                    'Douleurs thoraciques',
+                    examen.douleursThoraciques == 1,
+                  ),
+                  _buildCheckbox('Palpitations', examen.palpitations == 1),
+                  _buildCheckbox('Œdèmes', examen.oedemes == 1),
+                  _buildCheckbox('Cyanose', examen.cyanose == 1),
+                  _buildDetailRow(
+                    'Fonction circulatoire',
+                    examen.fonctionCirculatoire ?? '',
+                  ),
+                ],
+              ),
+            ),
+            _buildSection(
+              'APPAREIL DIGESTIF',
+              Column(
+                children: [
+                  _buildCheckbox('Pyrosis', examen.pyrosis == 1),
+                  _buildCheckbox('Vomissements', examen.vomissements == 1),
+                  _buildCheckbox(
+                    'Douleurs abdominales',
+                    examen.douleursAbdominales == 1,
+                  ),
+                ],
+              ),
+            ),
+            _buildSection(
+              'APPAREIL GÉNITO-URINAIRE',
+              Column(
+                children: [
+                  _buildCheckbox('Dysurie', examen.dysurie == 1),
+                  _buildCheckbox('Hématurie', examen.hematurie == 1),
+                  _buildCheckbox(
+                    'Cycles irréguliers',
+                    examen.cyclesIrreguliers == 1,
+                  ),
+                  _buildDetailRow(
+                    'Fonction motrice',
+                    examen.fonctionMotrice ?? '',
+                  ),
+                ],
+              ),
+            ),
+            _buildSection(
+              'EXAMENS COMPLÉMENTAIRES',
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if ((examen.sanguins ?? '').isNotEmpty)
+                    _buildDetailRow('Sanguins', examen.sanguins!),
+                  if ((examen.urinaires ?? '').isNotEmpty)
+                    _buildDetailRow('Urinaires', examen.urinaires!),
+                  if ((examen.radiologiques ?? '').isNotEmpty)
+                    _buildDetailRow('Radiologiques', examen.radiologiques!),
+                  _buildCheckbox('Hépatites positif', examen.hepatitesPos == 1),
+                  _buildCheckbox('Hépatites négatif', examen.hepatitesNeg == 1),
+                  _buildCheckbox('Syphilis positif', examen.syphilisPos == 1),
+                  _buildCheckbox('Syphilis négatif', examen.syphilisNeg == 1),
+                  _buildCheckbox('VIH positif', examen.vihPos == 1),
+                  _buildCheckbox('VIH négatif', examen.vihNeg == 1),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -114,7 +248,7 @@ class ExamenDetailsPage extends StatelessWidget {
       child: Row(
         children: [
           SizedBox(
-            width: 120,
+            width: 150,
             child: Text(
               label,
               style: const TextStyle(fontSize: 12, color: Color(0xFF718096)),
@@ -125,116 +259,6 @@ class ExamenDetailsPage extends StatelessWidget {
               value,
               style: const TextStyle(fontSize: 12, color: Color(0xFF2D3748)),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAppareilsSection(ExamenParAppareils appareils) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildOphtalmologique(appareils.ophtalmologique),
-        _buildORL(appareils.orl),
-        _buildSymptomesGroup(
-          'NEUROLOGIQUE ET PSYCHISME',
-          appareils.neurologiquePsychisme.symptomes,
-          ['Céphalées', 'Vertiges', 'Troubles du sommeil'],
-        ),
-        _buildPeauMuqueuses(appareils.peauMuqueuses),
-        _buildSymptomesGroup(
-          'APPAREIL LOCOMOTEUR',
-          appareils.appareilLocomoteur.symptomes,
-          [
-            'Douleurs Musculaires',
-            'Douleurs Articulaires',
-            'Douleurs Neurologiques',
-          ],
-        ),
-        _buildSymptomesGroup(
-          'APPAREIL CARDIO-VASCULAIRE',
-          appareils.appareilCardioVasculaire.symptomes,
-          ['Palpitations', 'Œdèmes', 'Cyanose'],
-        ),
-        _buildSymptomesGroup(
-          'APPAREIL DIGESTIF',
-          appareils.appareilDigestif.symptomes,
-          ['Pyrosis', 'Vomissements', 'Douleurs abdominales'],
-        ),
-        _buildSymptomesGroup(
-          'APPAREIL GÉNITO-URINAIRE',
-          appareils.appareilGenitoUrinaire.symptomes,
-          ['Dysurie', 'Hématurie', 'Cycles irréguliers'],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildOphtalmologique(Ophtalmologique ophtalmologique) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'OPHTALMOLOGIQUE',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF2D3748),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Acuité Visuelle',
-                    style: TextStyle(fontSize: 11, color: Color(0xFFF6AD55)),
-                  ),
-                  _buildVisualAcuity('OD:', ophtalmologique.acuiteVisuelleOD),
-                  _buildVisualAcuity('OG:', ophtalmologique.acuiteVisuelleOG),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Symptômes',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF718096)),
-                  ),
-                  ...['Larmoiement', 'Douleur', 'Taches devant les yeux'].map(
-                    (symptom) => _buildCheckbox(
-                      symptom,
-                      ophtalmologique.symptomes.contains(symptom),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildVisualAcuity(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF718096)),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF2D3748)),
           ),
         ],
       ),
@@ -262,217 +286,6 @@ class ExamenDetailsPage extends StatelessWidget {
               label,
               style: const TextStyle(fontSize: 11, color: Color(0xFF718096)),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSymptomesGroup(
-    String title,
-    List<String> symptomes,
-    List<String> labels,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2D3748),
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...labels.map(
-            (label) => _buildCheckbox(label, symptomes.contains(label)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPeauMuqueuses(PeauMuqueuses peauMuqueuses) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'PEAU ET MUQUEUSES',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF2D3748),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCheckbox('Normal', peauMuqueuses.normal),
-                  _buildCheckbox('Anormal', peauMuqueuses.anormal),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    peauMuqueuses.symptomes
-                        .map((symptom) => _buildCheckbox(symptom, true))
-                        .toList(),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBulletPoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            '• ',
-            style: TextStyle(color: Color(0xFF718096), fontSize: 11),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 11, color: Color(0xFF718096)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildComplementaireItem(ExamenComplementaire examen) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            examen.type,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2D3748),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  examen.resultat,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF718096),
-                  ),
-                ),
-              ),
-              if (examen.negatif)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE6FFFA),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Text(
-                    'Négatif',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF678E90)),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildORL(ORL orl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'ORL',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF2D3748),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Audition',
-                    style: TextStyle(fontSize: 11, color: Color(0xFFF6AD55)),
-                  ),
-                  _buildAudition('OD:', orl.auditionOD),
-                  _buildAudition('OG:', orl.auditionOG),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Symptômes',
-                    style: TextStyle(fontSize: 11, color: Color(0xFF718096)),
-                  ),
-                  ...[
-                    'Sifflements',
-                    'Angines répétées',
-                    'Épistaxis',
-                    'Rhinorrhée',
-                  ].map(
-                    (symptom) => _buildCheckbox(
-                      symptom,
-                      orl.symptomes.contains(symptom),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-
-  Widget _buildAudition(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF718096)),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 11, color: Color(0xFF2D3748)),
           ),
         ],
       ),

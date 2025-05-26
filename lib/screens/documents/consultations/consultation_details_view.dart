@@ -1,3 +1,5 @@
+import 'package:educare/models/examen_medical.dart';
+import 'package:educare/screens/documents/examens/examen_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../controllers/consultation_controller.dart';
@@ -18,13 +20,16 @@ class ConsultationDetailsView extends StatefulWidget {
 
 class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
   Future<Ordonnance?>? _ordonnanceFuture;
+  Future<ExamenMedical?>? _examenFuture; // Add this
 
   @override
   void initState() {
     super.initState();
-    // Fetch ordonnance when opening the details page
+    // Fetch ordonnance and examen medical when opening the details page
     _ordonnanceFuture = Get.find<ConsultationController>()
         .fetchOrdonnanceForConsultation(widget.consultation.id);
+    _examenFuture = Get.find<ConsultationController>()
+        .fetchExamenMedicalForConsultation(widget.consultation.id); // Add this
   }
 
   @override
@@ -111,52 +116,7 @@ class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
                 style: theme.textTheme.bodyMedium,
               ),
             ),
-            const SizedBox(height: 16),
-            _sectionCard(
-              context,
-              icon: Icons.science_outlined,
-              title: 'Examens médicaux',
-              child:
-                  widget.consultation.examens.isNotEmpty
-                      ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children:
-                            widget.consultation.examens
-                                .map(
-                                  (examen) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 2,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.description_outlined,
-                                          color: Colors.blue,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Text(
-                                          examen,
-                                          style: theme.textTheme.bodyMedium!
-                                              .copyWith(
-                                                color: Colors.blue,
-                                                decoration:
-                                                    TextDecoration.underline,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                      )
-                      : Text(
-                        'Aucun examen médical.',
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          color: Colors.grey,
-                        ),
-                      ),
-            ),
+            
             const SizedBox(height: 16),
             _sectionCard(
               context,
@@ -242,6 +202,63 @@ class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _sectionCard(
+              context,
+              icon: Icons.science_outlined,
+              title: 'Examen médical',
+              child: FutureBuilder<ExamenMedical?>(
+                future: _examenFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text(
+                      'Erreur lors de la vérification de l\'examen médical.',
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        color: Colors.red,
+                      ),
+                    );
+                  }
+                  final examen = snapshot.data;
+                  if (examen != null) {
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(() => ExamenDetailsPage(examen: examen));
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.description_outlined,
+                            color: Colors.blue,
+                            size: 18,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Voir l\'examen médical complet',
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return Text(
+                      'Aucun examen médical associé.',
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        color: Colors.grey,
+                      ),
+                    );
+                  }
+                },
               ),
             ),
           ],

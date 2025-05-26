@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import '../models/consultation.dart';
 import '../models/ordonnance.dart';
+import '../models/examen_medical.dart'; // Import your ExamenMedical model
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'user_controller.dart'; // Add this import
@@ -118,6 +119,36 @@ class ConsultationController extends GetxController {
       }
     } catch (e) {
       print('[ConsultationController] Exception fetching ordonnance: $e');
+      return null;
+    }
+  }
+
+  Future<ExamenMedical?> fetchExamenMedicalForConsultation(
+    String consultationId,
+  ) async {
+    try {
+      final userController = Get.find<UserController>();
+      final token = await userController.getToken();
+      final response = await http.get(
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/examen-medical/by-consultation/$consultationId',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return ExamenMedical.fromJson(data['data']);
+      } else {
+        print(
+          '[ConsultationController] Failed to fetch examen medical: ${response.body}',
+        );
+        return null;
+      }
+    } catch (e) {
+      print('[ConsultationController] Exception fetching examen medical: $e');
       return null;
     }
   }
