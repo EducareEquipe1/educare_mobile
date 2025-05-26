@@ -20,11 +20,30 @@ class Consultation {
   });
 
   factory Consultation.fromJson(Map<String, dynamic> json) {
+    // Handle symptomes as String or List
+    final rawSymptomes = json['symptomes'];
+    List<String> symptomesList;
+    if (rawSymptomes == null) {
+      symptomesList = [];
+    } else if (rawSymptomes is String) {
+      // If comma-separated, split; otherwise, wrap in a list
+      symptomesList =
+          rawSymptomes.trim().isEmpty
+              ? []
+              : rawSymptomes.contains(',')
+              ? rawSymptomes.split(',').map((s) => s.trim()).toList()
+              : [rawSymptomes.trim()];
+    } else if (rawSymptomes is Iterable) {
+      symptomesList = rawSymptomes.map((e) => e.toString()).toList();
+    } else {
+      symptomesList = [];
+    }
+
     return Consultation(
       motif: json['motif'] ?? '',
       date: json['date'] ?? '',
       type: json['type'] ?? '',
-      symptomes: List<String>.from(json['symptomes'] ?? []),
+      symptomes: symptomesList,
       observation: json['observation'] ?? '',
       diagnostic: json['diagnostic'] ?? '',
       examens: List<String>.from(json['examens'] ?? []),

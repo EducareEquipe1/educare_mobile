@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import '../../controllers/consultation_controller.dart';
+import '../controllers/consultation_controller.dart';
 
 class ConsultationBinding extends Bindings {
   @override
   void dependencies() {
-    Get.put(ConsultationController());
+    Get.lazyPut<ConsultationController>(() => ConsultationController());
   }
 }

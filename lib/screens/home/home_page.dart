@@ -10,6 +10,8 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+import 'package:educare/screens/documents/consultations/consultation_view.dart';
+import 'package:educare/controllers/consultation_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -69,7 +71,9 @@ class _HomePageState extends State<HomePage> {
     });
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:3000/patients/next-rendezvous/$email'),
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/next-rendezvous/$email',
+        ),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -346,18 +350,13 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _buildActionButton('Demandez un\nRendez-vous', () {
-                // Navigate to the "Faire une demande" dialog
-                showFaireDemandeDialog(
-                  context,
-                  (demande) {
-                    // Handle the new demande if needed
-                  },
-                  userEmail ?? '', // Pass the user's email
-                );
+                showFaireDemandeDialog(context, (demande) {}, userEmail ?? '');
               }),
               _buildActionButton('Voir mes\nrendez-vous', () {
-                // Navigate to the AppointmentsPage
                 Get.to(() => const AppointmentsPage());
+              }),
+              _buildActionButton('Voir mes\nconsultations', () {
+                Get.toNamed('/consultations');
               }),
             ],
           ),
