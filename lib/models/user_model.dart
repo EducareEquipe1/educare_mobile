@@ -37,7 +37,7 @@ class User {
       category: json['categorie'],
       profileImage: json['profile_image'] ?? json['photo'], // Accept both
       isActive: json['is_active'],
-      birthDate: json['birth_date'],
+      birthDate: json['date_naissance'] ?? '',
     );
   }
 

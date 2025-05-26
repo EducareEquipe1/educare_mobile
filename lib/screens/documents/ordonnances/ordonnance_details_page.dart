@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../../models/ordonnance.dart';
+import '../../../controllers/user_controller.dart';
 
 class OrdonnanceDetailsPage extends StatelessWidget {
   final Ordonnance ordonnance;
@@ -7,8 +9,25 @@ class OrdonnanceDetailsPage extends StatelessWidget {
   const OrdonnanceDetailsPage({Key? key, required this.ordonnance})
     : super(key: key);
 
+  int _calculateAge(String? birthDateString) {
+    if (birthDateString == null || birthDateString.isEmpty) return 0;
+    final birthDate = DateTime.tryParse(birthDateString);
+    if (birthDate == null) return 0;
+    final now = DateTime.now();
+    int age = now.year - birthDate.year;
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Get patient info from UserController
+    final userController = Get.find<UserController>();
+    final address = userController.address ?? '';
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -97,12 +116,15 @@ class OrdonnanceDetailsPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildDetailRow('Nom', ordonnance.patientName),
+                            _buildDetailRow(
+                              'Nom',
+                              userController.user?.lastName ?? '',
+                            ),
                             _buildDetailRow(
                               'Prenom',
-                              ordonnance.patientFirstName,
+                              userController.user?.firstName ?? '',
                             ),
-                            _buildDetailRow('Adresse', ordonnance.address),
+                            _buildDetailRow('Adresse', address),
                           ],
                         ),
                       ),
@@ -163,7 +185,7 @@ class OrdonnanceDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  static Widget _buildDetailRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6), // Reduced from 8
       child: Row(

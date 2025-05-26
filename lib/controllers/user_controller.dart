@@ -12,6 +12,9 @@ class UserController extends GetxController {
 
   final String baseUrl = 'https://educare-backend-l6ue.onrender.com';
 
+  // New field to store address
+  String? address;
+
   @override
   void onInit() {
     super.onInit();
@@ -45,9 +48,13 @@ class UserController extends GetxController {
 
   Future<void> fetchUserProfile(String email) async {
     try {
+      final token = await getToken();
       final response = await http.get(
         Uri.parse('$baseUrl/patients/profile/$email'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -67,6 +74,7 @@ class UserController extends GetxController {
           lastName: data['lastName'],
           phone: data['phone'],
           profileImage: profileImage,
+          birthDate: data['date_naissance'], // <-- Add this line
         );
         update();
       } else {
@@ -202,4 +210,50 @@ class UserController extends GetxController {
   }
 
   String? get userEmail => _user.value?.email;
+
+  Future<void> fetchDossierMedical(String email) async {
+    try {
+      final token = await getToken();
+      final response = await http.get(
+        Uri.parse(
+          'https://educare-backend-l6ue.onrender.com/patients/dossier-medical/$email',
+        ),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        address = data['adresse'] ?? '';
+        // If user exists, update birthDate; else, create user from dossier data
+        if (user != null) {
+          _user.value = user!.copyWith(
+            birthDate: data['date_naissance'],
+            firstName: user!.firstName ?? data['prenom'],
+            lastName: user!.lastName ?? data['nom'],
+            phone: user!.phone ?? data['num_tel'],
+          );
+        } else {
+          _user.value = User(
+            email: email,
+            firstName: data['prenom'],
+            lastName: data['nom'],
+            phone: data['num_tel'],
+            birthDate: data['date_naissance'],
+          );
+        }
+        update();
+      } else {
+        print('Failed to fetch dossier medical: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching dossier medical: $e');
+    }
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token'); // Use 'token' everywhere
+  }
 }

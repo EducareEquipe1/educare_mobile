@@ -1,31 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../controllers/consultation_controller.dart';
 import '../ordonnances/ordonnance_details_page.dart';
-import '../examens/examen_details_page.dart';
 import '../../../models/consultation.dart';
 import '../../../models/ordonnance.dart';
-import '../../../models/examen_medical.dart'
-    show
-        ExamenMedical,
-        ExamenParAppareils,
-        ExamenPhysique,
-        Ophtalmologique,
-        ORL,
-        NeurologiquePsychisme,
-        PeauMuqueuses,
-        AppareilLocomoteur,
-        AppareilCardioVasculaire,
-        AppareilDigestif,
-        AppareilGenitoUrinaire;
 
-class ConsultationDetailsView extends StatelessWidget {
+class ConsultationDetailsView extends StatefulWidget {
   final Consultation consultation;
 
   const ConsultationDetailsView({Key? key, required this.consultation})
     : super(key: key);
 
   @override
+  State<ConsultationDetailsView> createState() =>
+      _ConsultationDetailsViewState();
+}
+
+class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
+  Future<Ordonnance?>? _ordonnanceFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch ordonnance when opening the details page
+    _ordonnanceFuture = Get.find<ConsultationController>()
+        .fetchOrdonnanceForConsultation(widget.consultation.id);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Détails de la Consultation'),
@@ -34,190 +39,203 @@ class ConsultationDetailsView extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Motif, Date, and Type
-            _buildHeaderSection(),
+            _sectionCard(
+              context,
+              icon: Icons.info_outline,
+              title: 'Informations principales',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _infoRow('Motif', widget.consultation.motif),
+                  _infoRow('Date', widget.consultation.date),
+                  _infoRow('Type', widget.consultation.type),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
-
-            // Symptômes rapportés
-            _buildSection(
+            _sectionCard(
+              context,
+              icon: Icons.sick_outlined,
               title: 'Symptômes rapportés',
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    consultation.symptomes
-                        .map((symptom) => Text('• $symptom'))
-                        .toList(),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Observations du médecin
-            _buildSection(
-              title: 'Observations du médecin',
-              content: Text(consultation.observation),
-            ),
-            const SizedBox(height: 16),
-
-            // Diagnostic
-            _buildSection(
-              title: 'Diagnostic',
-              content: Text('• ${consultation.diagnostic}'),
-            ),
-            const SizedBox(height: 16),
-
-            // Examens Médicaux
-            _buildSection(
-              title: 'Examens Médicaux',
-              content: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children:
-                    consultation.examens.map((examen) {
-                      return GestureDetector(
-                        onTap: () {
-                          Get.to(
-                            () => ExamenDetailsPage(
-                              examen: ExamenMedical(
-                                examenPhysique: ExamenPhysique(
-                                  poids: '60 Kg',
-                                  taille: '168 Cm',
-                                  tensionArterielle: '120/80',
-                                ),
-                                examenParAppareils: ExamenParAppareils(
-                                  ophtalmologique: Ophtalmologique(
-                                    acuiteVisuelleOD: '10/10',
-                                    acuiteVisuelleOG: '10/10',
-                                    symptomes: ['Larmoiement'],
+              child:
+                  widget.consultation.symptomes.isNotEmpty
+                      ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            widget.consultation.symptomes
+                                .map(
+                                  (symptom) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                    ),
+                                    child: Text(
+                                      '• $symptom',
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
                                   ),
-                                  orl: ORL(
-                                    auditionOD: 'Normale',
-                                    auditionOG: 'Normale',
-                                    symptomes: ['Rhinorrhée'],
-                                  ),
-                                  neurologiquePsychisme: NeurologiquePsychisme(
-                                    symptomes: [
-                                      'État de conscience',
-                                      'Orientation',
-                                    ],
-                                  ),
-                                  peauMuqueuses: PeauMuqueuses(
-                                    normal: true,
-                                    anormal: false,
-                                    symptomes: [],
-                                  ),
-                                  appareilLocomoteur: AppareilLocomoteur(
-                                    symptomes: [
-                                      'Marche',
-                                      'Mobilité articulaire',
-                                    ],
-                                  ),
-                                  appareilCardioVasculaire:
-                                      AppareilCardioVasculaire(
-                                        symptomes: [
-                                          'Fréquence cardiaque',
-                                          'Auscultation',
-                                        ],
-                                      ),
-                                  appareilDigestif: AppareilDigestif(
-                                    symptomes: ['Palpation abdominale'],
-                                  ),
-                                  appareilGenitoUrinaire:
-                                      AppareilGenitoUrinaire(symptomes: []),
-                                ),
-                                explorationsFonctionnelles: [],
-                                examensComplementaires: [],
-                                id: '1',
-                                date: '15/03/2025',
-                              ),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.description_outlined,
-                              color: Colors.blue,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              examen,
-                              style: const TextStyle(
-                                color: Colors.blue,
-                                decoration: TextDecoration.underline,
-                              ),
-                            ),
-                          ],
+                                )
+                                .toList(),
+                      )
+                      : Text(
+                        'Aucun symptôme rapporté.',
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: Colors.grey,
                         ),
-                      );
-                    }).toList(),
+                      ),
+            ),
+            const SizedBox(height: 16),
+            _sectionCard(
+              context,
+              icon: Icons.visibility_outlined,
+              title: 'Observations du médecin',
+              child: Text(
+                widget.consultation.observation.isNotEmpty
+                    ? widget.consultation.observation
+                    : 'Aucune observation.',
+                style: theme.textTheme.bodyMedium,
               ),
             ),
             const SizedBox(height: 16),
-
-            // Ordonnance
-            _buildSection(
+            _sectionCard(
+              context,
+              icon: Icons.medical_services_outlined,
+              title: 'Diagnostic',
+              child: Text(
+                widget.consultation.diagnostic.isNotEmpty
+                    ? widget.consultation.diagnostic
+                    : 'Aucun diagnostic.',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _sectionCard(
+              context,
+              icon: Icons.science_outlined,
+              title: 'Examens médicaux',
+              child:
+                  widget.consultation.examens.isNotEmpty
+                      ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children:
+                            widget.consultation.examens
+                                .map(
+                                  (examen) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 2,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.description_outlined,
+                                          color: Colors.blue,
+                                          size: 18,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          examen,
+                                          style: theme.textTheme.bodyMedium!
+                                              .copyWith(
+                                                color: Colors.blue,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                      )
+                      : Text(
+                        'Aucun examen médical.',
+                        style: theme.textTheme.bodyMedium!.copyWith(
+                          color: Colors.grey,
+                        ),
+                      ),
+            ),
+            const SizedBox(height: 16),
+            _sectionCard(
+              context,
+              icon: Icons.receipt_long_outlined,
               title: 'Ordonnance',
-              content: GestureDetector(
-                onTap: () {
-                  Get.to(
-                    () => OrdonnanceDetailsPage(
-                      ordonnance: Ordonnance(
-                        patientName: 'Zerguerras',
-                        patientFirstName: 'Khayra Sarra',
-                        address: 'Adresse Exemple',
-                        date: consultation.date,
-                        age: 20,
-                        medications: [
-                          Medication(
-                            name: 'Paracétamol 1 G COMP.',
-                            dosage: '1 comprimé, chaque 6h',
-                            duration: '5 jours',
+              child: FutureBuilder<Ordonnance?>(
+                future: _ordonnanceFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return Text(
+                      'Erreur lors de la vérification de l\'ordonnance.',
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        color: Colors.red,
+                      ),
+                    );
+                  }
+                  final ordonnance = snapshot.data;
+                  if (ordonnance != null) {
+                    return GestureDetector(
+                      onTap: () {
+                        Get.to(
+                          () => OrdonnanceDetailsPage(ordonnance: ordonnance),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.description_outlined,
+                            color: Colors.blue,
+                            size: 18,
                           ),
-                          Medication(
-                            name: 'Amoxicilline 1 G COMP.',
-                            dosage: '1 comprimé, 3 fois/jour',
-                            duration: '5 jours',
+                          const SizedBox(width: 8),
+                          Text(
+                            'Voir l\'ordonnance complète',
+                            style: theme.textTheme.bodyMedium!.copyWith(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
                           ),
                         ],
-                        id: '1',
                       ),
-                    ),
-                  );
+                    );
+                  } else {
+                    return Text(
+                      'Aucune ordonnance associée.',
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        color: Colors.grey,
+                      ),
+                    );
+                  }
                 },
-                child: Row(
-                  children: [
-                    const Icon(Icons.description_outlined, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Voir l\'ordonnance complète',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
             const SizedBox(height: 16),
-
-            // Pièces Jointes
-            _buildSection(
-              title: 'Pièces Jointes',
-              content: GestureDetector(
+            _sectionCard(
+              context,
+              icon: Icons.attach_file_outlined,
+              title: 'Pièces jointes',
+              child: GestureDetector(
                 onTap: () {
-                  // Handle file opening logic here
+                  // TODO: Handle file opening logic here
                 },
                 child: Row(
                   children: [
-                    const Icon(Icons.picture_as_pdf, color: Colors.red),
+                    const Icon(
+                      Icons.picture_as_pdf,
+                      color: Colors.red,
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
-                    const Text(
+                    Text(
                       'rapport-examen.pdf',
-                      style: TextStyle(
+                      style: theme.textTheme.bodyMedium!.copyWith(
                         color: Colors.blue,
                         decoration: TextDecoration.underline,
                       ),
@@ -232,57 +250,66 @@ class ConsultationDetailsView extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Motif : ${consultation.motif}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Row(
+  Widget _sectionCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Widget child,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: const Color(0xFFF7FAFC),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Date : ${consultation.date}',
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            const SizedBox(width: 16),
             Row(
               children: [
-                const Icon(
-                  Icons.warning_amber_rounded,
-                  size: 16,
-                  color: Colors.orange,
-                ),
-                const SizedBox(width: 4),
+                Icon(icon, color: const Color(0xFF2D3748)),
+                const SizedBox(width: 8),
                 Text(
-                  consultation.type,
+                  title,
                   style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.orange,
                     fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF2D3748),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            child,
           ],
         ),
-      ],
+      ),
     );
   }
 
-  Widget _buildSection({required String title, required Widget content}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        content,
-      ],
+  Widget _infoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Text(
+            '$label : ',
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF718096),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontWeight: FontWeight.w400,
+                color: Color(0xFF2D3748),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

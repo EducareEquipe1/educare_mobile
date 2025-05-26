@@ -1,4 +1,5 @@
 class Consultation {
+  final String id; // <-- Add this
   final String motif;
   final String date;
   final String type;
@@ -9,6 +10,7 @@ class Consultation {
   final bool hasOrdonnance;
 
   Consultation({
+    required this.id, // <-- Add this
     required this.motif,
     required this.date,
     required this.type,
@@ -40,6 +42,7 @@ class Consultation {
     }
 
     return Consultation(
+      id: json['id_consultation'].toString(), // <-- Use your backend field
       motif: json['motif'] ?? '',
       date: json['date'] ?? '',
       type: json['type'] ?? '',
