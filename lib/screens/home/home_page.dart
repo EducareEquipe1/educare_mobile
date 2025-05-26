@@ -6,6 +6,10 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'health_tips.dart';
 import 'package:educare/widgets/profile_avatar.dart';
+import 'dart:async';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -19,14 +23,29 @@ class _HomePageState extends State<HomePage> {
   String? userEmail;
   String greetingMessage = 'Bonjour';
 
+  DateTime? nextRdvDate;
+  Timer? countdownTimer;
+  Duration timeLeft = Duration.zero;
+  bool isLoadingRdv = true;
+
+  String? conseilDuJour;
+  DateTime? conseilDate;
+
   @override
   void initState() {
     super.initState();
-    // Retrieve the email from arguments
     userEmail = Get.arguments?['email'];
     if (userEmail != null) {
       _fetchUserData(userEmail!);
+      _fetchNextRendezVous(userEmail!);
     }
+    _setConseilDuJour();
+  }
+
+  @override
+  void dispose() {
+    countdownTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchUserData(String email) async {
@@ -44,8 +63,73 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _fetchNextRendezVous(String email) async {
+    setState(() {
+      isLoadingRdv = true;
+    });
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:3000/patients/next-rendezvous/$email'),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final dateStr = data['date']; // Adjust field name as per your backend
+        nextRdvDate = DateTime.parse(dateStr);
+        _startCountdown();
+      } else {
+        nextRdvDate = null;
+      }
+    } catch (e) {
+      nextRdvDate = null;
+    }
+    setState(() {
+      isLoadingRdv = false;
+    });
+  }
+
+  void _startCountdown() {
+    countdownTimer?.cancel();
+    if (nextRdvDate == null) return;
+    setState(() {
+      timeLeft = nextRdvDate!.difference(DateTime.now());
+    });
+    countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      final diff = nextRdvDate!.difference(DateTime.now());
+      if (diff.isNegative) {
+        timer.cancel();
+        setState(() {
+          timeLeft = Duration.zero;
+        });
+      } else {
+        setState(() {
+          timeLeft = diff;
+        });
+      }
+    });
+  }
+
+  void _setConseilDuJour() {
+    final now = DateTime.now();
+    if (conseilDate == null ||
+        conseilDate!.day != now.day ||
+        conseilDate!.month != now.month ||
+        conseilDate!.year != now.year) {
+      // Use the date as a seed so it's stable for the day
+      final tips =
+          HealthTips.tips; // Make sure HealthTips.tips is a List<String>
+      if (tips.isNotEmpty) {
+        final seed = int.parse('${now.year}${now.month}${now.day}');
+        final random = Random(seed);
+        conseilDuJour = tips[random.nextInt(tips.length)];
+        conseilDate = now;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    _setConseilDuJour(); // Ensure conseil is up-to-date if day changes while app is open
+
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -77,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 24),
-              _buildCard('Conseil santé du jour', HealthTips.getRandomTip()),
+              _buildCard('Conseil santé du jour', conseilDuJour ?? ''),
               const SizedBox(height: 16),
               _buildAppointmentCard(),
               const SizedBox(height: 16),
@@ -121,6 +205,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildAppointmentCard() {
+    if (isLoadingRdv) {
+      return Center(child: CircularProgressIndicator());
+    }
+    if (nextRdvDate == null) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color.fromRGBO(241, 245, 249, 1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Text(
+          'Aucun rendez-vous à venir',
+          style: TextStyle(fontSize: 16, color: Color.fromRGBO(45, 55, 72, 1)),
+        ),
+      );
+    }
+
+    final days = timeLeft.inDays;
+    final hours = timeLeft.inHours % 24;
+    final minutes = timeLeft.inMinutes % 60;
+    final seconds = timeLeft.inSeconds % 60;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -140,7 +246,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '17 avril 2025 à 14:30',
+            DateFormat('d MMMM yyyy à HH:mm', 'fr_FR').format(nextRdvDate!),
             style: const TextStyle(
               fontSize: 14,
               color: Color.fromRGBO(113, 128, 150, 1),
@@ -159,9 +265,10 @@ class _HomePageState extends State<HomePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildCountdownItem('7', 'Jours'),
-              _buildCountdownItem('19', 'Heures'),
-              _buildCountdownItem('45', 'Minutes'),
+              _buildAnimatedCountdownItem('$days', 'Jours'),
+              _buildAnimatedCountdownItem('$hours', 'Heures'),
+              _buildAnimatedCountdownItem('$minutes', 'Minutes'),
+              _buildAnimatedCountdownItem('$seconds', 'Secondes'),
             ],
           ),
         ],
@@ -169,21 +276,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCountdownItem(String value, String label) {
+  Widget _buildAnimatedCountdownItem(String value, String label) {
     return Column(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
             color: const Color.fromRGBO(45, 55, 72, 1),
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blueAccent.withOpacity(0.4),
+                blurRadius: 12,
+                spreadRadius: 2,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Text(
             value,
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
-              fontSize: 16,
+              fontSize: 22,
+              shadows: [
+                Shadow(
+                  blurRadius: 8,
+                  color: Colors.blueAccent,
+                  offset: Offset(0, 0),
+                ),
+              ],
             ),
           ),
         ),

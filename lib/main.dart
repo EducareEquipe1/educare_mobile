@@ -1,4 +1,5 @@
 import 'package:educare/controllers/notification_controller.dart';
+import 'package:educare/controllers/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -30,7 +31,8 @@ void main() async {
   );
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-  Get.put(NotificationController()); // <-- Add this
+  Get.put(UserController()); // <-- Add this line
+  Get.put(NotificationController()); // Already present
   runApp(const EduCareApp());
 }
 
