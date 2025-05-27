@@ -355,6 +355,14 @@ class _HomePageState extends State<HomePage> {
               _buildActionButton('Voir mes\nrendez-vous', () {
                 Get.to(() => const AppointmentsPage());
               }),
+              
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+             
               _buildActionButton('Voir mes\nconsultations', () {
                 Get.toNamed('/consultations');
               }),
