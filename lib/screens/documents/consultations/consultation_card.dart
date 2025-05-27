@@ -41,7 +41,9 @@ class ConsultationCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    consultation.date,
+                    consultation.date.length >= 10
+                        ? consultation.date.substring(0, 10)
+                        : consultation.date,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Color(0xFF718096),

@@ -56,7 +56,12 @@ class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _infoRow('Motif', widget.consultation.motif),
-                  _infoRow('Date', widget.consultation.date),
+                  _infoRow(
+                    'Date',
+                    widget.consultation.date.length >= 10
+                        ? widget.consultation.date.substring(0, 10)
+                        : widget.consultation.date,
+                  ),
                   _infoRow('Type', widget.consultation.type),
                 ],
               ),
@@ -116,7 +121,7 @@ class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
                 style: theme.textTheme.bodyMedium,
               ),
             ),
-            
+
             const SizedBox(height: 16),
             _sectionCard(
               context,
@@ -177,34 +182,7 @@ class _ConsultationDetailsViewState extends State<ConsultationDetailsView> {
               ),
             ),
             const SizedBox(height: 16),
-            _sectionCard(
-              context,
-              icon: Icons.attach_file_outlined,
-              title: 'Pièces jointes',
-              child: GestureDetector(
-                onTap: () {
-                  // TODO: Handle file opening logic here
-                },
-                child: Row(
-                  children: [
-                    const Icon(
-                      Icons.picture_as_pdf,
-                      color: Colors.red,
-                      size: 18,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'rapport-examen.pdf',
-                      style: theme.textTheme.bodyMedium!.copyWith(
-                        color: Colors.blue,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
+
             _sectionCard(
               context,
               icon: Icons.science_outlined,

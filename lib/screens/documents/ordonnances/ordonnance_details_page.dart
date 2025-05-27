@@ -132,7 +132,12 @@ class OrdonnanceDetailsPage extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildDetailRow('Date', ordonnance.date),
+                            _buildDetailRow(
+                              'Date',
+                              ordonnance.date.length >= 10
+                                  ? ordonnance.date.substring(0, 10)
+                                  : ordonnance.date,
+                            ),
                             _buildDetailRow('Age', '${ordonnance.age} ans'),
                           ],
                         ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/notification_model.dart';
 import '../../widgets/notification_card.dart';
 import '../../../controllers/user_controller.dart';
@@ -17,18 +18,32 @@ class NotificationsPage extends StatefulWidget {
 class _NotificationsPageState extends State<NotificationsPage> {
   List<AppNotification> notifications = [];
   bool isLoading = true;
+  bool notificationsEnabled = true; // Add this
 
   @override
   void initState() {
     super.initState();
-    fetchNotifications();
+    _checkNotificationSetting();
+  }
+
+  Future<void> _checkNotificationSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    if (notificationsEnabled) {
+      fetchNotifications();
+    } else {
+      setState(() {
+        isLoading = false;
+        notifications = [];
+      });
+    }
   }
 
   Future<void> fetchNotifications() async {
     final email = Get.find<UserController>().user?.email;
     if (email == null) return;
     final url =
-        'https://educare-backend-l6ue.onrender.com/notifications/$email'; 
+        'https://educare-backend-l6ue.onrender.com/notifications/$email';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
@@ -86,6 +101,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 child:
                     isLoading
                         ? const Center(child: CircularProgressIndicator())
+                        : !notificationsEnabled
+                        ? const Center(
+                          child: Text(
+                            'Notifications désactivées',
+                            style: TextStyle(
+                              color: Color.fromRGBO(113, 128, 150, 1),
+                              fontSize: 16,
+                            ),
+                          ),
+                        )
                         : notifications.isEmpty
                         ? const Center(
                           child: Text(
