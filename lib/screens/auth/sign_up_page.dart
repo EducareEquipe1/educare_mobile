@@ -23,6 +23,7 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String? _selectedRole = 'Etudiant';
+  String? _selectedSex; // Add this line
   bool _isPasswordVisible = false;
   bool _isLoading = false;
   String _message = '';
@@ -50,6 +51,7 @@ class _SignUpPageState extends State<SignUpPage> {
           'email': _emailController.text,
           'password': _passwordController.text,
           'categorie': _selectedRole,
+          'sex': _selectedSex,
         }),
       );
 
@@ -148,12 +150,143 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   SizedBox(height: size.height * 0.02),
 
-                  // Date of Birth
-                  _buildTextField(
-                    'Date de naissance (YYYY-MM-DD)',
-                    Icons.calendar_today,
-                    _birthDateController,
-                    size,
+                  // Date of Birth with calendar picker
+                  TextFormField(
+                    controller: _birthDateController,
+                    readOnly: true,
+                    style: const TextStyle(color: mainGreen),
+                    cursorColor: mainGreen,
+                    decoration: InputDecoration(
+                      hintText: 'Date de naissance (YYYY-MM-DD)',
+                      hintStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                      prefixIcon: Icon(Icons.calendar_today),
+                      prefixIconColor: MaterialStateColor.resolveWith((states) {
+                        if (states.contains(MaterialState.focused)) {
+                          return mainGreen;
+                        }
+                        return Colors.white.withOpacity(0.7);
+                      }),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.1),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: mainGreen,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    onTap: () async {
+                      FocusScope.of(context).requestFocus(FocusNode());
+                      DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now().subtract(
+                          const Duration(days: 365 * 18),
+                        ),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: ColorScheme.light(
+                                primary: mainGreen,
+                                onPrimary: Colors.white,
+                                onSurface: mainGreen,
+                              ),
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: mainGreen,
+                                ),
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                        _birthDateController.text =
+                            "${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+                      }
+                    },
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Veuillez sélectionner la date de naissance'
+                                : null,
+                  ),
+                  SizedBox(height: size.height * 0.02),
+
+                  // Sexe Dropdown with green selected text
+                  DropdownButtonFormField<String>(
+                    value: _selectedSex,
+                    decoration: InputDecoration(
+                      hintText: 'Sexe',
+                      hintStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                      prefixIcon: Icon(Icons.wc),
+                      prefixIconColor: MaterialStateColor.resolveWith((states) {
+                        if (states.contains(MaterialState.focused)) {
+                          return mainGreen;
+                        }
+                        return Colors.white.withOpacity(0.7);
+                      }),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.1),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Colors.white.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: mainGreen,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    dropdownColor: Colors.white,
+                    icon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Colors.white.withOpacity(0.7),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'Male',
+                        child: Text(
+                          'Homme',
+                          style: TextStyle(color: mainGreen),
+                        ),
+                      ),
+                      DropdownMenuItem(
+                        value: 'Female',
+                        child: Text(
+                          'Femme',
+                          style: TextStyle(color: mainGreen),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedSex = value;
+                      });
+                    },
+                    validator:
+                        (value) =>
+                            value == null
+                                ? 'Veuillez sélectionner le sexe'
+                                : null,
+                    style: const TextStyle(color: mainGreen),
                   ),
                   SizedBox(height: size.height * 0.02),
 
